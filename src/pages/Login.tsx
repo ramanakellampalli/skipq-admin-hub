@@ -21,6 +21,7 @@ export default function Login() {
     try {
       const res = await api.login(email, password);
       login(res.token, res.user);
+      navigate("/dashboard");
     } catch {
       setError("Invalid credentials. Please try again.");
     } finally {
