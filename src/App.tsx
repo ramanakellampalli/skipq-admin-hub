@@ -8,7 +8,6 @@ import { AppLayout } from "@/components/AppLayout";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Vendors from "@/pages/Vendors";
-import Menu from "@/pages/Menu";
 import Orders from "@/pages/Orders";
 import NotFound from "@/pages/NotFound";
 
@@ -31,7 +30,6 @@ const App = () => (
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
-          <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
           <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

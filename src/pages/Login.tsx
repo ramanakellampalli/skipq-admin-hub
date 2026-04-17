@@ -20,7 +20,11 @@ export default function Login() {
     setError("");
     try {
       const res = await api.login(email, password);
-      login(res.token, res.user);
+      if (res.role !== "ADMIN") {
+        setError("Access denied. Admin accounts only.");
+        return;
+      }
+      login(res.token, { email: res.email, name: res.name });
       navigate("/dashboard");
     } catch {
       setError("Invalid credentials. Please try again.");
@@ -38,10 +42,6 @@ export default function Login() {
           </div>
           <h1 className="text-2xl font-bold text-foreground">SkipQ Admin</h1>
           <p className="text-sm text-muted-foreground">Sign in to manage your campus food platform</p>
-        </div>
-        <div className="bg-muted/50 border border-border rounded-lg p-3 text-sm space-y-1">
-          <p className="text-muted-foreground">Demo credentials:</p>
-          <p className="font-mono text-foreground">admin@skipq.com / password</p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, UtensilsCrossed, ClipboardList, LogOut } from "lucide-react";
+import { LayoutDashboard, Store, ClipboardList, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/lib/auth";
 import {
@@ -16,7 +16,6 @@ import {
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Vendors", url: "/vendors", icon: Store },
-  { title: "Menu", url: "/menu", icon: UtensilsCrossed },
   { title: "Orders", url: "/orders", icon: ClipboardList },
 ];
 

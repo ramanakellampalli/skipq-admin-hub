@@ -1,41 +1,43 @@
 import { useEffect, useState } from "react";
-import { api, type Vendor } from "@/lib/api";
+import { api, type Vendor, type CreateVendorPayload } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Pencil } from "lucide-react";
+import { Plus } from "lucide-react";
+
+const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10 };
 
 export default function Vendors() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Vendor | null>(null);
-  const [form, setForm] = useState({ name: "", prepTime: 10 });
+  const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const load = () => api.getVendors().then((v) => { setVendors(v); setLoading(false); });
   useEffect(() => { load(); }, []);
 
-  const openAdd = () => { setEditing(null); setForm({ name: "", prepTime: 10 }); setDialogOpen(true); };
-  const openEdit = (v: Vendor) => { setEditing(v); setForm({ name: v.name, prepTime: v.prepTime }); setDialogOpen(true); };
+  const openAdd = () => { setForm(emptyForm); setError(""); setDialogOpen(true); };
 
   const save = async () => {
-    if (editing) {
-      await api.updateVendor(editing.id, { name: form.name, prepTime: form.prepTime });
-    } else {
-      await api.addVendor({ name: form.name, prepTime: form.prepTime, status: "open" });
+    setSaving(true);
+    setError("");
+    try {
+      await api.createVendor(form);
+      setDialogOpen(false);
+      load();
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to create vendor");
+    } finally {
+      setSaving(false);
     }
-    setDialogOpen(false);
-    load();
   };
 
-  const toggleStatus = async (v: Vendor) => {
-    await api.updateVendor(v.id, { status: v.status === "open" ? "closed" : "open" });
-    load();
-  };
+  const isValid = form.vendorName && form.email && form.ownerName && form.defaultPrepTime > 0;
 
   return (
     <div className="space-y-6">
@@ -51,7 +53,6 @@ export default function Vendors() {
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Prep Time</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -61,7 +62,6 @@ export default function Vendors() {
                   <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-8" /></TableCell>
                 </TableRow>
               ))
             ) : (
@@ -69,17 +69,11 @@ export default function Vendors() {
                 <TableRow key={v.id}>
                   <TableCell className="font-medium">{v.name}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Switch checked={v.status === "open"} onCheckedChange={() => toggleStatus(v)} />
-                      <span className={v.status === "open" ? "text-status-ready text-sm" : "text-muted-foreground text-sm"}>
-                        {v.status === "open" ? "Open" : "Closed"}
-                      </span>
-                    </div>
+                    <span className={v.isOpen ? "text-green-600 text-sm font-medium" : "text-muted-foreground text-sm"}>
+                      {v.isOpen ? "Open" : "Closed"}
+                    </span>
                   </TableCell>
                   <TableCell>{v.prepTime} min</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(v)}><Pencil className="h-4 w-4" /></Button>
-                  </TableCell>
                 </TableRow>
               ))
             )}
@@ -90,21 +84,30 @@ export default function Vendors() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Vendor" : "Add Vendor"}</DialogTitle>
+            <DialogTitle>Add Vendor</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="space-y-2">
-              <Label>Name</Label>
-              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Vendor name" />
+              <Label>Vendor Name</Label>
+              <Input value={form.vendorName} onChange={(e) => setForm((f) => ({ ...f, vendorName: e.target.value }))} placeholder="e.g. Campus Grill" />
             </div>
             <div className="space-y-2">
-              <Label>Prep Time (minutes)</Label>
-              <Input type="number" value={form.prepTime} onChange={(e) => setForm((f) => ({ ...f, prepTime: Number(e.target.value) }))} />
+              <Label>Owner Name</Label>
+              <Input value={form.ownerName} onChange={(e) => setForm((f) => ({ ...f, ownerName: e.target.value }))} placeholder="Full name" />
+            </div>
+            <div className="space-y-2">
+              <Label>Owner Email</Label>
+              <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="vendor@example.com" />
+            </div>
+            <div className="space-y-2">
+              <Label>Default Prep Time (minutes)</Label>
+              <Input type="number" min={1} value={form.defaultPrepTime} onChange={(e) => setForm((f) => ({ ...f, defaultPrepTime: Number(e.target.value) }))} />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={save} disabled={!form.name}>Save</Button>
+            <Button onClick={save} disabled={!isValid || saving}>{saving ? "Sending invite..." : "Create & Send Invite"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
