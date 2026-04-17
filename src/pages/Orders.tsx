@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
-import { api, type Order } from "@/lib/api";
+import { useState } from "react";
+import { type Order } from "@/lib/api";
+import { useAdminStore } from "@/lib/adminStore";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,36 +8,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Separator } from "@/components/ui/separator";
 
 export default function Orders() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const orders = useAdminStore((s) => s.orders);
   const [selected, setSelected] = useState<Order | null>(null);
 
-  const fetchOrders = useCallback(async () => {
-    const data = await api.getOrders();
-    setOrders(data);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 7000);
-    return () => clearInterval(interval);
-  }, [fetchOrders]);
-
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Orders</h1>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="w-2 h-2 rounded-full bg-status-ready animate-pulse-soft" />
-          Live updating
-        </div>
-      </div>
+      <h1 className="text-2xl font-bold">Orders</h1>
 
       <div className="glass-card overflow-hidden">
         <Table>
@@ -47,13 +27,14 @@ export default function Orders() {
               <TableHead>Items</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Time</TableHead>
+              <TableHead>Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {!orders ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 5 }).map((_, j) => (
+                  {Array.from({ length: 6 }).map((_, j) => (
                     <TableCell key={j}><Skeleton className="h-5 w-20" /></TableCell>
                   ))}
                 </TableRow>
@@ -61,13 +42,14 @@ export default function Orders() {
             ) : (
               orders.map((o) => (
                 <TableRow key={o.id} className="cursor-pointer hover:bg-muted/30" onClick={() => setSelected(o)}>
-                  <TableCell className="font-mono text-sm">{o.id}</TableCell>
+                  <TableCell className="font-mono text-sm">{o.id.slice(0, 8).toUpperCase()}</TableCell>
                   <TableCell>{o.vendorName}</TableCell>
                   <TableCell className="text-muted-foreground text-sm max-w-48 truncate">
                     {o.items.map((it) => `${it.quantity}x ${it.name}`).join(", ")}
                   </TableCell>
                   <TableCell><StatusBadge status={o.status} /></TableCell>
-                  <TableCell className="text-muted-foreground">{formatTime(o.time)}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatTime(o.createdAt)}</TableCell>
+                  <TableCell>₹{Number(o.totalAmount).toFixed(2)}</TableCell>
                 </TableRow>
               ))
             )}
@@ -80,7 +62,7 @@ export default function Orders() {
           {selected && (
             <>
               <SheetHeader>
-                <SheetTitle className="font-mono">{selected.id}</SheetTitle>
+                <SheetTitle className="font-mono">{selected.id.slice(0, 8).toUpperCase()}</SheetTitle>
               </SheetHeader>
               <div className="mt-6 space-y-4">
                 <div className="flex justify-between">
@@ -92,12 +74,8 @@ export default function Orders() {
                   <span>{selected.vendorName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Student</span>
-                  <span>{selected.studentName}</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-muted-foreground">Time</span>
-                  <span>{formatTime(selected.time)}</span>
+                  <span>{formatTime(selected.createdAt)}</span>
                 </div>
                 <Separator />
                 <div className="space-y-2">
@@ -105,14 +83,14 @@ export default function Orders() {
                   {selected.items.map((it, i) => (
                     <div key={i} className="flex justify-between text-sm">
                       <span>{it.quantity}x {it.name}</span>
-                      <span className="text-muted-foreground">${(it.price * it.quantity).toFixed(2)}</span>
+                      <span className="text-muted-foreground">₹{Number(it.subtotal).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span className="text-primary">${selected.total.toFixed(2)}</span>
+                  <span className="text-primary">₹{Number(selected.totalAmount).toFixed(2)}</span>
                 </div>
               </div>
             </>

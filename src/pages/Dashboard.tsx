@@ -1,28 +1,16 @@
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { useAdminStore } from "@/lib/adminStore";
 import { ClipboardList, Store, Clock, DollarSign } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface Stats {
-  totalOrdersToday: number;
-  activeVendors: number;
-  ordersInProgress: number;
-  totalRevenue: number;
-}
 
 const cards = [
   { key: "totalOrdersToday" as const, label: "Total Orders Today", icon: ClipboardList },
   { key: "activeVendors" as const, label: "Active Vendors", icon: Store },
   { key: "ordersInProgress" as const, label: "Orders In Progress", icon: Clock },
-  { key: "totalRevenue" as const, label: "Revenue Today", icon: DollarSign, format: (v: number) => `$${v.toFixed(2)}` },
+  { key: "revenueToday" as const, label: "Revenue Today", icon: DollarSign, format: (v: number) => `₹${v.toFixed(2)}` },
 ];
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
-
-  useEffect(() => {
-    api.getDashboardStats().then(setStats);
-  }, []);
+  const stats = useAdminStore((s) => s.stats);
 
   return (
     <div className="space-y-6">
