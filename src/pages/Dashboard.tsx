@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { api, type AdminStats } from "@/lib/api";
+import { useAdminStore } from "@/lib/adminStore";
 import { ClipboardList, Store, Clock, DollarSign } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -11,11 +10,7 @@ const cards = [
 ];
 
 export default function Dashboard() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
-
-  useEffect(() => {
-    api.getStats().then(setStats);
-  }, []);
+  const stats = useAdminStore((s) => s.stats);
 
   return (
     <div className="space-y-6">

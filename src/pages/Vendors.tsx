@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { api, type Vendor, type CreateVendorPayload } from "@/lib/api";
+import { useState } from "react";
+import { api, type CreateVendorPayload } from "@/lib/api";
+import { useAdminStore } from "@/lib/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,15 +12,12 @@ import { Plus } from "lucide-react";
 const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10 };
 
 export default function Vendors() {
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loading, setLoading] = useState(true);
+  const vendors = useAdminStore((s) => s.vendors);
+  const setSync = useAdminStore((s) => s.setSync);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  const load = () => api.getVendors().then((v) => { setVendors(v); setLoading(false); });
-  useEffect(() => { load(); }, []);
 
   const openAdd = () => { setForm(emptyForm); setError(""); setDialogOpen(true); };
 
@@ -28,8 +26,9 @@ export default function Vendors() {
     setError("");
     try {
       await api.createVendor(form);
+      const syncData = await api.sync();
+      setSync(syncData);
       setDialogOpen(false);
-      load();
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create vendor");
     } finally {
@@ -56,7 +55,7 @@ export default function Vendors() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {!vendors ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-5 w-32" /></TableCell>

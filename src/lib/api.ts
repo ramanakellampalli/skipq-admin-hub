@@ -61,6 +61,12 @@ export interface AdminStats {
   revenueToday: number;
 }
 
+export interface AdminSyncData {
+  stats: AdminStats;
+  vendors: Vendor[];
+  orders: Order[];
+}
+
 export interface CreateVendorPayload {
   vendorName: string;
   email: string;
@@ -74,22 +80,12 @@ export const api = {
     return data;
   },
 
-  getVendors: async (): Promise<Vendor[]> => {
-    const { data } = await client.get("/api/v1/admin/vendors");
+  sync: async (): Promise<AdminSyncData> => {
+    const { data } = await client.get("/api/v1/admin/sync");
     return data;
   },
 
   createVendor: async (payload: CreateVendorPayload): Promise<void> => {
     await client.post("/api/v1/admin/vendors", payload);
-  },
-
-  getOrders: async (): Promise<Order[]> => {
-    const { data } = await client.get("/api/v1/admin/orders");
-    return data;
-  },
-
-  getStats: async (): Promise<AdminStats> => {
-    const { data } = await client.get("/api/v1/admin/stats");
-    return data;
   },
 };

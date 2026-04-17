@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useAdminStore } from "@/lib/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const login = useAuth((s) => s.login);
+  const setSync = useAdminStore((s) => s.setSync);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +27,8 @@ export default function Login() {
         return;
       }
       login(res.token, { email: res.email, name: res.name });
+      const syncData = await api.sync();
+      setSync(syncData);
       navigate("/dashboard");
     } catch {
       setError("Invalid credentials. Please try again.");

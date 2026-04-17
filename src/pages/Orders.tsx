@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { api, type Order } from "@/lib/api";
+import { useState } from "react";
+import { type Order } from "@/lib/api";
+import { useAdminStore } from "@/lib/adminStore";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,13 +8,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Separator } from "@/components/ui/separator";
 
 export default function Orders() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const orders = useAdminStore((s) => s.orders);
   const [selected, setSelected] = useState<Order | null>(null);
-
-  useEffect(() => {
-    api.getOrders().then((data) => { setOrders(data); setLoading(false); });
-  }, []);
 
   const formatTime = (iso: string) =>
     new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -35,7 +31,7 @@ export default function Orders() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {!orders ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
                   {Array.from({ length: 6 }).map((_, j) => (
