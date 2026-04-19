@@ -28,11 +28,19 @@ client.interceptors.response.use(
 
 export type OrderStatus = "PENDING" | "ACCEPTED" | "PREPARING" | "READY" | "COMPLETED" | "REJECTED";
 
+export interface Campus {
+  id: string;
+  name: string;
+  emailDomain: string;
+}
+
 export interface Vendor {
   id: string;
   name: string;
   isOpen: boolean;
   prepTime: number;
+  campusId: string;
+  campusName: string;
 }
 
 export interface OrderItem {
@@ -44,13 +52,15 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  vendorId: string;
-  vendorName: string;
-  status: OrderStatus;
-  paymentStatus: string;
-  totalAmount: number;
-  estimatedReadyAt: string;
-  createdAt: string;
+  vendor: { id: string; name: string };
+  state: { orderStatus: OrderStatus; paymentStatus: string };
+  pricing: {
+    subtotal: number;
+    tax: { cgst: number; sgst: number; igst: number; totalTax: number };
+    fees: { platformFee: number; paymentTerminalFee: number; totalServiceFee: number };
+    totalAmount: number;
+  };
+  timeline: { createdAt: string; estimatedReadyAt: string };
   items: OrderItem[];
 }
 
@@ -63,6 +73,7 @@ export interface AdminStats {
 
 export interface AdminSyncData {
   stats: AdminStats;
+  campuses: Campus[];
   vendors: Vendor[];
   orders: Order[];
 }
@@ -72,6 +83,12 @@ export interface CreateVendorPayload {
   email: string;
   ownerName: string;
   defaultPrepTime: number;
+  campusId: string;
+}
+
+export interface CreateCampusPayload {
+  name: string;
+  emailDomain: string;
 }
 
 export const api = {
@@ -87,5 +104,10 @@ export const api = {
 
   createVendor: async (payload: CreateVendorPayload): Promise<void> => {
     await client.post("/api/v1/admin/vendors", payload);
+  },
+
+  createCampus: async (payload: CreateCampusPayload): Promise<Campus> => {
+    const { data } = await client.post("/api/v1/admin/campuses", payload);
+    return data;
   },
 };

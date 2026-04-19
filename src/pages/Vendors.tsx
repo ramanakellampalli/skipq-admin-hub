@@ -4,15 +4,18 @@ import { useAdminStore } from "@/lib/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
 
-const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10 };
+const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10, campusId: "" };
 
 export default function Vendors() {
   const vendors = useAdminStore((s) => s.vendors);
+  const campuses = useAdminStore((s) => s.campuses);
   const setSync = useAdminStore((s) => s.setSync);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
@@ -36,7 +39,7 @@ export default function Vendors() {
     }
   };
 
-  const isValid = form.vendorName && form.email && form.ownerName && form.defaultPrepTime > 0;
+  const isValid = form.vendorName && form.email && form.ownerName && form.defaultPrepTime > 0 && form.campusId;
 
   return (
     <div className="space-y-6">
@@ -50,6 +53,7 @@ export default function Vendors() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
+              <TableHead>Campus</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Prep Time</TableHead>
             </TableRow>
@@ -59,6 +63,7 @@ export default function Vendors() {
               Array.from({ length: 4 }).map((_, i) => (
                 <TableRow key={i}>
                   <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                 </TableRow>
@@ -67,6 +72,9 @@ export default function Vendors() {
               vendors.map((v) => (
                 <TableRow key={v.id}>
                   <TableCell className="font-medium">{v.name}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs">{v.campusName}</Badge>
+                  </TableCell>
                   <TableCell>
                     <span className={v.isOpen ? "text-green-600 text-sm font-medium" : "text-muted-foreground text-sm"}>
                       {v.isOpen ? "Open" : "Closed"}
@@ -88,6 +96,21 @@ export default function Vendors() {
           <div className="space-y-4">
             {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="space-y-2">
+              <Label>Campus</Label>
+              <Select value={form.campusId} onValueChange={(v) => setForm((f) => ({ ...f, campusId: v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a campus" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(campuses ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} <span className="text-muted-foreground ml-1">@{c.emailDomain}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Vendor Name</Label>
               <Input value={form.vendorName} onChange={(e) => setForm((f) => ({ ...f, vendorName: e.target.value }))} placeholder="e.g. Campus Grill" />
             </div>
@@ -106,7 +129,7 @@ export default function Vendors() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={save} disabled={!isValid || saving}>{saving ? "Sending invite..." : "Create & Send Invite"}</Button>
+            <Button onClick={save} disabled={!isValid || saving}>{saving ? "Creating..." : "Create Vendor"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
