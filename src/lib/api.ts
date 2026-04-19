@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://skipq-core-1014891107344.asia-south1.run.app";
+const BASE_URL = import.meta.env.VITE_API_URL as string;
 
 const client = axios.create({
   baseURL: BASE_URL,
