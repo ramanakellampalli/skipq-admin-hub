@@ -27,11 +27,11 @@ export default function Login() {
         return;
       }
       login(res.token, { email: res.email, name: res.name });
-      const syncData = await api.sync();
-      setSync(syncData);
       navigate("/dashboard");
-    } catch {
-      setError("Invalid credentials. Please try again.");
+      api.sync().then(setSync).catch(() => {});
+    } catch (err: any) {
+      const msg = err.response?.data?.message;
+      setError(msg || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
