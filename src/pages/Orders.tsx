@@ -43,13 +43,13 @@ export default function Orders() {
               orders.map((o) => (
                 <TableRow key={o.id} className="cursor-pointer hover:bg-muted/30" onClick={() => setSelected(o)}>
                   <TableCell className="font-mono text-sm">{o.id.slice(0, 8).toUpperCase()}</TableCell>
-                  <TableCell>{o.vendorName}</TableCell>
+                  <TableCell>{o.vendor.name}</TableCell>
                   <TableCell className="text-muted-foreground text-sm max-w-48 truncate">
                     {o.items.map((it) => `${it.quantity}x ${it.name}`).join(", ")}
                   </TableCell>
-                  <TableCell><StatusBadge status={o.status} /></TableCell>
-                  <TableCell className="text-muted-foreground">{formatTime(o.createdAt)}</TableCell>
-                  <TableCell>₹{Number(o.totalAmount).toFixed(2)}</TableCell>
+                  <TableCell><StatusBadge status={o.state.orderStatus} /></TableCell>
+                  <TableCell className="text-muted-foreground">{formatTime(o.timeline.createdAt)}</TableCell>
+                  <TableCell>₹{Number(o.pricing.totalAmount).toFixed(2)}</TableCell>
                 </TableRow>
               ))
             )}
@@ -67,15 +67,15 @@ export default function Orders() {
               <div className="mt-6 space-y-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Status</span>
-                  <StatusBadge status={selected.status} />
+                  <StatusBadge status={selected.state.orderStatus} />
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Vendor</span>
-                  <span>{selected.vendorName}</span>
+                  <span>{selected.vendor.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Time</span>
-                  <span>{formatTime(selected.createdAt)}</span>
+                  <span>{formatTime(selected.timeline.createdAt)}</span>
                 </div>
                 <Separator />
                 <div className="space-y-2">
@@ -90,7 +90,7 @@ export default function Orders() {
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span className="text-primary">₹{Number(selected.totalAmount).toFixed(2)}</span>
+                  <span className="text-primary">₹{Number(selected.pricing.totalAmount).toFixed(2)}</span>
                 </div>
               </div>
             </>
