@@ -13,5 +13,5 @@ export const useAdminStore = create<AdminState>((set) => ({
   vendors: undefined,
   orders: undefined,
   setSync: (data) => set({ ...data, isSynced: true }),
-  reset: () => set({ isSynced: false, stats: undefined, vendors: undefined, orders: undefined }),
+  reset: () => set({ isSynced: false, stats: undefined, campuses: undefined, vendors: undefined, orders: undefined }),
 }));
