@@ -83,7 +83,6 @@ export interface ServiceRequest {
   userName: string;
   userEmail: string;
   type: ServiceRequestType;
-  subject: string;
   description: string;
   status: ServiceRequestStatus;
   adminResponse: string | null;

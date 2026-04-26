@@ -140,7 +140,7 @@ export default function Support() {
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Subject</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
             </TableRow>
@@ -171,7 +171,7 @@ export default function Support() {
                     <Badge variant="outline" className="text-xs">{sr.role}</Badge>
                   </TableCell>
                   <TableCell className="text-sm">{TYPE_LABELS[sr.type] ?? sr.type}</TableCell>
-                  <TableCell className="max-w-56 truncate text-sm">{sr.subject}</TableCell>
+                  <TableCell className="max-w-56 truncate text-sm">{sr.description}</TableCell>
                   <TableCell><StatusBadge status={sr.status} /></TableCell>
                   <TableCell className="text-muted-foreground text-sm">{formatDate(sr.createdAt)}</TableCell>
                 </TableRow>
@@ -183,82 +183,113 @@ export default function Support() {
 
       <Sheet open={!!selected} onOpenChange={(open) => !open && closeSheet()}>
         <SheetContent className="sm:max-w-lg overflow-y-auto">
-          {selected && (
-            <>
-              <SheetHeader>
-                <SheetTitle>{selected.subject}</SheetTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline" className="text-xs">{selected.role}</Badge>
-                  <span className="text-xs text-muted-foreground">{TYPE_LABELS[selected.type] ?? selected.type}</span>
+          {selected && (() => {
+            const isClosed = selected.status === "CLOSED";
+            return (
+              <>
+                <SheetHeader>
+                  <SheetTitle>{TYPE_LABELS[selected.type] ?? selected.type}</SheetTitle>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className="text-xs">{selected.role}</Badge>
+                    <span className="text-xs text-muted-foreground">{selected.userEmail}</span>
+                  </div>
+                </SheetHeader>
+
+                <div className="mt-6 space-y-5">
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide">From</span>
+                    <p className="text-sm font-medium">{selected.userName}</p>
+                    <p className="text-xs text-muted-foreground">{selected.userEmail}</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide">Submitted</span>
+                    <p className="text-sm">{formatDate(selected.createdAt)}</p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide">Description</span>
+                    <p className="text-sm whitespace-pre-wrap">{selected.description}</p>
+                  </div>
+
+                  <Separator />
+
+                  {isClosed ? (
+                    <div className="space-y-4">
+                      <div className="space-y-1">
+                        <span className="text-xs text-muted-foreground uppercase tracking-wide">Status</span>
+                        <p className="text-sm font-medium">Closed</p>
+                      </div>
+                      {selected.adminResponse && (
+                        <div className="space-y-1">
+                          <span className="text-xs text-muted-foreground uppercase tracking-wide">Response to user</span>
+                          <p className="text-sm whitespace-pre-wrap">{selected.adminResponse}</p>
+                        </div>
+                      )}
+                      {selected.adminNotes && (
+                        <div className="space-y-1">
+                          <span className="text-xs text-muted-foreground uppercase tracking-wide">Internal notes</span>
+                          <p className="text-sm whitespace-pre-wrap">{selected.adminNotes}</p>
+                        </div>
+                      )}
+                      {selected.adminRespondedAt && (
+                        <p className="text-xs text-muted-foreground">
+                          Responded {formatDate(selected.adminRespondedAt)}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <Label>Status</Label>
+                        <Select value={editStatus} onValueChange={(v) => setEditStatus(v as ServiceRequestStatus)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="OPEN">Open</SelectItem>
+                            <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                            <SelectItem value="RESOLVED">Resolved</SelectItem>
+                            <SelectItem value="CLOSED">Closed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Response to user</Label>
+                        <Textarea
+                          rows={4}
+                          placeholder="Visible to the user in the app…"
+                          value={editResponse}
+                          onChange={(e) => setEditResponse(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Internal notes</Label>
+                        <Textarea
+                          rows={3}
+                          placeholder="Not visible to the user…"
+                          value={editNotes}
+                          onChange={(e) => setEditNotes(e.target.value)}
+                        />
+                      </div>
+
+                      {selected.adminRespondedAt && (
+                        <p className="text-xs text-muted-foreground">
+                          Last responded {formatDate(selected.adminRespondedAt)}
+                        </p>
+                      )}
+
+                      <Button className="w-full" onClick={save} disabled={saving}>
+                        {saving ? "Saving…" : "Save"}
+                      </Button>
+                    </>
+                  )}
                 </div>
-              </SheetHeader>
-
-              <div className="mt-6 space-y-5">
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wide">From</span>
-                  <p className="text-sm font-medium">{selected.userName}</p>
-                  <p className="text-xs text-muted-foreground">{selected.userEmail}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wide">Submitted</span>
-                  <p className="text-sm">{formatDate(selected.createdAt)}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wide">Description</span>
-                  <p className="text-sm whitespace-pre-wrap">{selected.description}</p>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={editStatus} onValueChange={(v) => setEditStatus(v as ServiceRequestStatus)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="OPEN">Open</SelectItem>
-                      <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                      <SelectItem value="RESOLVED">Resolved</SelectItem>
-                      <SelectItem value="CLOSED">Closed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Response to user</Label>
-                  <Textarea
-                    rows={4}
-                    placeholder="Visible to the user in the app…"
-                    value={editResponse}
-                    onChange={(e) => setEditResponse(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Internal notes</Label>
-                  <Textarea
-                    rows={3}
-                    placeholder="Not visible to the user…"
-                    value={editNotes}
-                    onChange={(e) => setEditNotes(e.target.value)}
-                  />
-                </div>
-
-                {selected.adminRespondedAt && (
-                  <p className="text-xs text-muted-foreground">
-                    Last responded {formatDate(selected.adminRespondedAt)}
-                  </p>
-                )}
-
-                <Button className="w-full" onClick={save} disabled={saving}>
-                  {saving ? "Saving…" : "Save"}
-                </Button>
-              </div>
-            </>
-          )}
+              </>
+            );
+          })()}
         </SheetContent>
       </Sheet>
     </div>
