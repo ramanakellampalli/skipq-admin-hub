@@ -32,8 +32,9 @@ export default function Vendors() {
       const syncData = await api.sync();
       setSync(syncData);
       setDialogOpen(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to create vendor");
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || "Failed to create vendor");
     } finally {
       setSaving(false);
     }

@@ -29,8 +29,9 @@ export default function Campuses() {
       const syncData = await api.sync();
       setSync(syncData);
       setDialogOpen(false);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to create campus");
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || "Failed to create campus");
     } finally {
       setSaving(false);
     }
