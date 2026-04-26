@@ -71,11 +71,38 @@ export interface AdminStats {
   revenueToday: number;
 }
 
+export type ServiceRequestType =
+  | "REFUND_ISSUE" | "PAYMENT_ISSUE" | "ACCOUNT_ISSUE"
+  | "BILLING_ISSUE" | "PAYOUT_ISSUE" | "TECHNICAL" | "OTHER";
+
+export type ServiceRequestStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+
+export interface ServiceRequest {
+  id: string;
+  role: "VENDOR" | "STUDENT";
+  userName: string;
+  userEmail: string;
+  type: ServiceRequestType;
+  description: string;
+  status: ServiceRequestStatus;
+  adminResponse: string | null;
+  adminNotes: string | null;
+  adminRespondedAt: string | null;
+  createdAt: string;
+}
+
+export interface UpdateServiceRequestPayload {
+  status: ServiceRequestStatus;
+  adminResponse?: string;
+  adminNotes?: string;
+}
+
 export interface AdminSyncData {
   stats: AdminStats;
   campuses: Campus[];
   vendors: Vendor[];
   orders: Order[];
+  serviceRequests: ServiceRequest[];
 }
 
 export interface CreateVendorPayload {
@@ -108,6 +135,11 @@ export const api = {
 
   createCampus: async (payload: CreateCampusPayload): Promise<Campus> => {
     const { data } = await client.post("/api/v1/admin/campuses", payload);
+    return data;
+  },
+
+  updateServiceRequest: async (id: string, payload: UpdateServiceRequestPayload): Promise<ServiceRequest> => {
+    const { data } = await client.put(`/api/v1/admin/support/${id}`, payload);
     return data;
   },
 };

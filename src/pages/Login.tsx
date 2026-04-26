@@ -29,8 +29,8 @@ export default function Login() {
       login(res.token, { email: res.email, name: res.name });
       navigate("/dashboard");
       api.sync().then(setSync).catch(() => {});
-    } catch (err: any) {
-      const msg = err.response?.data?.message;
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       setError(msg || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
