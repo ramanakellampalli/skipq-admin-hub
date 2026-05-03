@@ -1010,7 +1010,6 @@ export default function SkipQ() {
 
       {/* ── 2. LIVE SYSTEM SIMULATION ── */}
       <section className="simulation" id="simulation">
-        <div className="sim-label reveal">// SYSTEM STATE VISUALIZATION</div>
         <div className="sim-title reveal reveal-delay-1">
           Watch the system<br />
           <span style={{ color: 'var(--text-muted)' }}>evolve in real time.</span>
@@ -1057,11 +1056,6 @@ export default function SkipQ() {
 
       {/* ── 3. SYSTEM STATES ── */}
       <section id="states">
-        <div className="section-overline reveal">// SYSTEM STATES</div>
-        <div className="section-title reveal reveal-delay-1">
-          Three states.<br />
-          <span className="dim">One direction.</span>
-        </div>
 
         <div className="states-grid">
           {/* STATE 1 */}
@@ -1115,11 +1109,6 @@ export default function SkipQ() {
 
       {/* ── 4. ACTORS ── */}
       <section id="actors" style={{ background: 'rgba(0,0,0,0.2)' }}>
-        <div className="section-overline reveal">// SYSTEM ENTITIES</div>
-        <div className="section-title reveal reveal-delay-1">
-          Three actors.<br />
-          <span className="dim">One system.</span>
-        </div>
 
         <div className="actors-row">
           <div className="actor-card actor-student reveal">
