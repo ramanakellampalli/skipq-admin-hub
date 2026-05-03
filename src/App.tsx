@@ -12,12 +12,13 @@ import Campuses from "@/pages/Campuses";
 import Orders from "@/pages/Orders";
 import Support from "@/pages/Support";
 import NotFound from "@/pages/NotFound";
+import Home from "@/pages/Home";
 
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuth((s) => s.isAuthenticated);
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/home" replace />;
   return <AppLayout>{children}</AppLayout>;
 }
 
@@ -28,8 +29,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
           <Route path="/campuses" element={<ProtectedRoute><Campuses /></ProtectedRoute>} />
