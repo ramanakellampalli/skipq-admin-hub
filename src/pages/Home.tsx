@@ -62,12 +62,25 @@ export default function Home() {
 
   return (
     <div style={s.page}>
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-grid { grid-template-columns: 1fr !important; padding: 80px 24px 40px !important; }
+          .hero-right { display: none !important; }
+          .features-grid { grid-template-columns: 1fr 1fr !important; }
+          .nav { padding: 14px 24px !important; }
+          .nav-links { display: none !important; }
+          footer { padding: 20px 24px !important; }
+        }
+        @media (max-width: 480px) {
+          .features-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
       {/* NAV */}
-      <nav style={s.nav}>
+      <nav style={s.nav} className="nav">
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
-        <div style={s.navLinks}>
+        <div style={s.navLinks} className="nav-links">
           <a href="#how" style={s.navLink}>How It Works</a>
           <a href="#vendors" style={s.navLink}>For Vendors</a>
           <a href="#features" style={s.navLink}>Features</a>
@@ -77,7 +90,7 @@ export default function Home() {
       </nav>
 
       {/* HERO */}
-      <section style={s.hero}>
+      <section style={s.hero} className="hero-grid">
         <div style={s.heroLeft}>
           <div style={s.eyebrow}>Fresh Ordering for Campus</div>
           <h1 style={s.h1}>
@@ -98,7 +111,7 @@ export default function Home() {
             <span style={s.trustItem}>✓ Secure & Easy</span>
           </div>
         </div>
-        <div style={s.heroRight}>
+        <div style={s.heroRight} className="hero-right">
           <img src="/mobile-preview.png" alt="SkipQ app" style={s.mobileImg} />
         </div>
       </section>
@@ -106,7 +119,7 @@ export default function Home() {
       {/* WHY SKIPQ */}
       <section style={s.features} id="features">
         <h2 style={s.featuresTitle}>Why SkipQ?</h2>
-        <div style={s.featuresGrid}>
+        <div style={s.featuresGrid} className="features-grid">
           {[
             { icon: '⏱', title: 'Save Time', desc: 'Students skip long queues and order from their phone.' },
             { icon: '📱', title: 'Easy Ordering', desc: 'Simple, fast and student friendly.' },
@@ -148,8 +161,8 @@ const s: Record<string, React.CSSProperties> = {
   },
   hero: {
     display: 'grid', gridTemplateColumns: '1fr 1fr',
-    gap: 60, padding: '120px 64px 80px',
-    alignItems: 'center', maxWidth: 1200, margin: '0 auto',
+    gap: 48, padding: '100px 64px 60px',
+    alignItems: 'center', maxWidth: 1280, margin: '0 auto',
   },
   heroLeft: { display: 'flex', flexDirection: 'column', gap: 0 },
   heroRight: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
@@ -172,8 +185,8 @@ const s: Record<string, React.CSSProperties> = {
   },
   trustRow: { display: 'flex', gap: 24 },
   trustItem: { fontSize: 13, color: '#9ca3af', fontWeight: 500 },
-  mobileImg: { width: '100%', maxWidth: 480, borderRadius: 16, boxShadow: '0 24px 60px rgba(0,0,0,0.12)' },
-  features: { padding: '80px 64px', background: '#f8fafc', textAlign: 'center' },
+  mobileImg: { width: '100%', maxWidth: 460, maxHeight: 420, objectFit: 'contain' as const, borderRadius: 16, boxShadow: '0 16px 48px rgba(0,0,0,0.1)' },
+  features: { padding: '60px 64px', background: '#f8fafc', textAlign: 'center' },
   featuresTitle: { fontSize: 28, fontWeight: 800, marginBottom: 48, letterSpacing: '-0.02em' },
   featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, maxWidth: 1100, margin: '0 auto' },
   featureCard: { background: '#fff', borderRadius: 12, padding: '28px 20px', border: '1px solid #f1f5f9', textAlign: 'center' },
