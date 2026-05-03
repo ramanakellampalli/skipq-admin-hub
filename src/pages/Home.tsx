@@ -86,13 +86,13 @@ export default function Home() {
           <a href="#features" style={s.navLink}>Features</a>
           <a href="#contact" style={s.navLink}>Contact</a>
         </div>
-        <button style={s.adminBtn} onClick={() => setShowLogin(true)}>Admin Login</button>
+        <button style={s.adminBtn} onClick={() => setShowLogin(true)}>🔒 Admin Login</button>
       </nav>
 
       {/* HERO */}
       <section style={s.hero} className="hero-grid">
         <div style={s.heroLeft}>
-          <div style={s.eyebrow}>Fresh Ordering for Campus</div>
+          <div style={s.eyebrow}><span style={s.eyebrowIcon}>✦</span> Smart Ordering for Campus</div>
           <h1 style={s.h1}>
             Skip the line.<br />
             Order ahead.<br />
@@ -102,13 +102,15 @@ export default function Home() {
             SkipQ helps students order from campus vendors without waiting in queues.
           </p>
           <div style={s.heroCtas}>
-            <button style={s.btnPrimary}>Get Started</button>
+            <button style={s.btnPrimary}>Get Started &nbsp;›</button>
             <button style={s.btnGhost}>▶ Watch Demo</button>
           </div>
           <div style={s.trustRow}>
-            <span style={s.trustItem}>✓ Save Time</span>
-            <span style={s.trustItem}>✓ No More Queues</span>
-            <span style={s.trustItem}>✓ Secure & Easy</span>
+            <span style={s.trustItem}><span style={s.trustIcon}>⏱</span> Save Time</span>
+            <span style={s.trustSep}>|</span>
+            <span style={s.trustItem}><span style={s.trustIcon}>👥</span> No More Queues</span>
+            <span style={s.trustSep}>|</span>
+            <span style={s.trustItem}><span style={s.trustIcon}>🛡</span> Secure & Easy</span>
           </div>
         </div>
         <div style={s.heroRight} className="hero-right">
@@ -121,13 +123,13 @@ export default function Home() {
         <h2 style={s.featuresTitle}>Why SkipQ?</h2>
         <div style={s.featuresGrid} className="features-grid">
           {[
-            { icon: '⏱', title: 'Save Time', desc: 'Students skip long queues and order from their phone.' },
-            { icon: '📱', title: 'Easy Ordering', desc: 'Simple, fast and student friendly.' },
-            { icon: '🔒', title: 'Secure Payments', desc: 'Trusted gateway handles the payments.' },
-            { icon: '📊', title: 'Smart Insights', desc: 'Vendors get real-time analytics to grow.' },
+            { icon: '⏱', color: '#f97316', bg: 'rgba(249,115,22,0.12)', title: 'Save Time', desc: 'Order in advance and skip long waiting lines.' },
+            { icon: '🛍', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', title: 'Easy Ordering', desc: 'Simple, fast and student friendly.' },
+            { icon: '🛡', color: '#3b82f6', bg: 'rgba(59,130,246,0.12)', title: 'Secure Payments', desc: 'Safe, secure and hassle-free payments.' },
+            { icon: '📈', color: '#a855f7', bg: 'rgba(168,85,247,0.12)', title: 'Smart Insights', desc: 'Real-time updates for better experience.' },
           ].map((f, i) => (
             <div style={s.featureCard} key={i}>
-              <div style={s.featureIcon}>{f.icon}</div>
+              <div style={{ ...s.featureIconCircle, background: f.bg, color: f.color }}>{f.icon}</div>
               <div style={s.featureTitle}>{f.title}</div>
               <div style={s.featureDesc}>{f.desc}</div>
             </div>
@@ -161,36 +163,39 @@ const s: Record<string, React.CSSProperties> = {
   },
   hero: {
     display: 'grid', gridTemplateColumns: '1fr 1fr',
-    gap: 48, padding: '100px 64px 60px',
-    alignItems: 'center', maxWidth: 1280, margin: '0 auto',
+    gap: 48, padding: '88px 80px 48px',
+    alignItems: 'center', maxWidth: 1200, margin: '0 auto',
   },
   heroLeft: { display: 'flex', flexDirection: 'column', gap: 0 },
   heroRight: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
   eyebrow: {
-    display: 'inline-block', fontSize: 12, fontWeight: 600,
-    color: '#f97316', background: 'rgba(249,115,22,0.08)',
-    padding: '5px 12px', borderRadius: 100, marginBottom: 20,
-    border: '1px solid rgba(249,115,22,0.2)',
+    display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600,
+    color: '#ea6c00', background: 'rgba(249,115,22,0.1)',
+    padding: '6px 14px', borderRadius: 100, marginBottom: 24,
   },
-  h1: { fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 16 },
-  heroSub: { fontSize: 16, color: '#6b7280', lineHeight: 1.6, marginBottom: 28, maxWidth: 400 },
-  heroCtas: { display: 'flex', gap: 12, marginBottom: 24 },
+  eyebrowIcon: { fontSize: 11 },
+  h1: { fontSize: 'clamp(34px, 3.8vw, 52px)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 18 },
+  heroSub: { fontSize: 16, color: '#6b7280', lineHeight: 1.6, marginBottom: 32, maxWidth: 400 },
+  heroCtas: { display: 'flex', gap: 14, marginBottom: 28, alignItems: 'center' },
   btnPrimary: {
-    padding: '12px 28px', background: '#f97316', color: '#000',
-    border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 15, cursor: 'pointer',
+    padding: '13px 28px', background: '#f97316', color: '#fff',
+    border: 'none', borderRadius: 100, fontWeight: 700, fontSize: 15, cursor: 'pointer',
   },
   btnGhost: {
-    padding: '12px 24px', background: 'transparent', color: '#0f172a',
-    border: '1px solid #e5e7eb', borderRadius: 8, fontWeight: 600, fontSize: 15, cursor: 'pointer',
+    padding: '13px 24px', background: 'transparent', color: '#0f172a',
+    border: '1.5px solid #d1d5db', borderRadius: 100, fontWeight: 600, fontSize: 15, cursor: 'pointer',
+    display: 'flex', alignItems: 'center', gap: 8,
   },
-  trustRow: { display: 'flex', gap: 24 },
-  trustItem: { fontSize: 13, color: '#9ca3af', fontWeight: 500 },
-  mobileImg: { width: '100%', maxWidth: 460, maxHeight: 420, objectFit: 'contain' as const, borderRadius: 16, boxShadow: '0 16px 48px rgba(0,0,0,0.1)' },
-  features: { padding: '60px 64px', background: '#f8fafc', textAlign: 'center' },
-  featuresTitle: { fontSize: 28, fontWeight: 800, marginBottom: 48, letterSpacing: '-0.02em' },
-  featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, maxWidth: 1100, margin: '0 auto' },
-  featureCard: { background: '#fff', borderRadius: 12, padding: '28px 20px', border: '1px solid #f1f5f9', textAlign: 'center' },
-  featureIcon: { fontSize: 28, marginBottom: 12 },
+  trustRow: { display: 'flex', gap: 12, alignItems: 'center' },
+  trustItem: { fontSize: 13, color: '#6b7280', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 },
+  trustIcon: { fontSize: 14 },
+  trustSep: { color: '#d1d5db', fontSize: 14 },
+  mobileImg: { width: '100%', maxWidth: 520, objectFit: 'contain' as const },
+  features: { padding: '48px 80px 56px', background: '#f8fafc', textAlign: 'center' },
+  featuresTitle: { fontSize: 26, fontWeight: 800, marginBottom: 36, letterSpacing: '-0.02em' },
+  featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, maxWidth: 960, margin: '0 auto' },
+  featureCard: { background: 'transparent', padding: '20px 16px', textAlign: 'center' },
+  featureIconCircle: { width: 56, height: 56, borderRadius: 16, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' },
   featureTitle: { fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#0f172a' },
   featureDesc: { fontSize: 13, color: '#9ca3af', lineHeight: 1.6 },
   footer: {
