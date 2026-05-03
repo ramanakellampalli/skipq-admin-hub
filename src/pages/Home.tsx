@@ -132,12 +132,14 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer style={s.footer}>
-        <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
-        <div style={{ fontSize: 13, color: '#9ca3af' }}>© 2026 SkipQ · Real-time campus food ordering</div>
-        <div style={{ fontSize: 13, color: '#6b7280' }}>
-          For more details & onboarding —{' '}
-          <a href="mailto:info@ohyeahsaas.com" style={{ color: '#f97316', textDecoration: 'none', fontWeight: 600 }}>info@ohyeahsaas.com</a>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
+          <div style={{ fontSize: 12, color: '#6b7280' }}>
+            For more details & onboarding —{' '}
+            <a href="mailto:info@ohyeahsaas.com" style={{ color: '#f97316', textDecoration: 'none', fontWeight: 600 }}>info@ohyeahsaas.com</a>
+          </div>
         </div>
+        <div style={{ fontSize: 13, color: '#9ca3af' }}>© 2026 SkipQ · Real-time campus food ordering</div>
       </footer>
     </div>
   );
