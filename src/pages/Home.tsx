@@ -80,7 +80,7 @@ export default function Home() {
       {/* NAV */}
       <nav style={s.nav} className="nav">
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
-        <button style={s.adminBtn} onClick={() => setShowLogin(true)}>🔒 Admin Login</button>
+        <button style={s.adminBtn} onClick={() => setShowLogin(true)}>Admin Login</button>
       </nav>
 
       {/* HERO */}
