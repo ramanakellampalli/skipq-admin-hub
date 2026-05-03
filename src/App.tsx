@@ -12,6 +12,7 @@ import Campuses from "@/pages/Campuses";
 import Orders from "@/pages/Orders";
 import Support from "@/pages/Support";
 import NotFound from "@/pages/NotFound";
+import Home from "@/pages/Home";
 
 const queryClient = new QueryClient();
 
@@ -28,8 +29,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
           <Route path="/campuses" element={<ProtectedRoute><Campuses /></ProtectedRoute>} />
