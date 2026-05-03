@@ -1146,45 +1146,6 @@ export default function SkipQ() {
         </div>
       </section>
 
-      {/* ── 5. PRODUCT VISUAL ── */}
-      <section>
-        <div className="product-center">
-          <div className="section-overline reveal">// LIVE ORDER SYSTEM</div>
-          <div className="section-title reveal reveal-delay-1" style={{ textAlign: 'center', marginBottom: 0 }}>
-            Real-time.<br />
-            <span className="dim">Every order, every state.</span>
-          </div>
-
-          <div className="dashboard-card reveal reveal-delay-2">
-            <div className="dashboard-header">
-              <div className="dashboard-dots">
-                <div className="dashboard-dot" style={{ background: '#ef4444' }} />
-                <div className="dashboard-dot" style={{ background: '#facc15' }} />
-                <div className="dashboard-dot" style={{ background: '#4ade80' }} />
-              </div>
-              <span className="dashboard-title">skipq.system — live order stream</span>
-            </div>
-
-            <div className="dashboard-body">
-              {orders.map((o, i) => (
-                <div className="order-row" key={i}>
-                  <span className="order-id mono">{o.id}</span>
-                  <span className="order-item">{o.item}</span>
-                  <StatusCycler delay={i * 700} />
-                  <span className="order-time mono">{o.time}</span>
-                </div>
-              ))}
-
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-                <div className="ready-badge">
-                  <div className="ready-dot" />
-                  Ready in 4 min · Order #0041
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── 6. FINAL SYSTEM STATEMENT ── */}
       <section className="final" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(249,115,22,0.06), transparent)' }}>
