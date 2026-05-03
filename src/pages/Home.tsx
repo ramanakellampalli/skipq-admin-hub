@@ -95,10 +95,6 @@ export default function Home() {
           <p style={s.heroSub}>
             SkipQ helps students order from campus vendors without waiting in queues.
           </p>
-          <div style={s.heroCtas}>
-            <button style={s.btnPrimary}>Get Started &nbsp;›</button>
-            <button style={s.btnGhost}>▶ Watch Demo</button>
-          </div>
           <div style={s.trustRow}>
             <span style={s.trustItem}><span style={s.trustIcon}>⏱</span> Save Time</span>
             <span style={s.trustSep}>|</span>
@@ -175,7 +171,6 @@ const s: Record<string, React.CSSProperties> = {
   eyebrowIcon: { fontSize: 11 },
   h1: { fontSize: 'clamp(34px, 3.8vw, 52px)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 18 },
   heroSub: { fontSize: 16, color: '#6b7280', lineHeight: 1.6, marginBottom: 32, maxWidth: 400 },
-  heroCtas: { display: 'flex', gap: 14, marginBottom: 28, alignItems: 'center' },
   btnPrimary: {
     padding: '13px 28px', background: '#f97316', color: '#fff',
     border: 'none', borderRadius: 100, fontWeight: 700, fontSize: 15, cursor: 'pointer',
