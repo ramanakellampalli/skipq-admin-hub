@@ -164,7 +164,7 @@ const s: Record<string, React.CSSProperties> = {
   hero: {
     display: 'grid', gridTemplateColumns: '1fr 1fr',
     gap: 48, padding: '88px 80px 48px',
-    alignItems: 'center', maxWidth: 1200, margin: '0 auto',
+    alignItems: 'center',
   },
   heroLeft: { display: 'flex', flexDirection: 'column', gap: 0 },
   heroRight: { display: 'flex', justifyContent: 'center', alignItems: 'center' },
