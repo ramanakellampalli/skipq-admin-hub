@@ -150,31 +150,40 @@ const styles = `
   section { display: flex; flex-direction: column; justify-content: center; padding: 60px 48px; position: relative; }
 
   /* HERO */
-  .hero { min-height: 100vh; align-items: flex-start; justify-content: center; overflow: hidden; padding-top: 120px; }
+  .hero {
+    min-height: 100vh; overflow: hidden;
+    padding-top: 80px; padding-bottom: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .hero-left { position: relative; z-index: 1; }
+  .hero-right { position: relative; z-index: 1; }
 
   .hero-eyebrow {
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 6px 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px;
     background: var(--orange-dim); border: 1px solid rgba(249,115,22,0.3);
     border-radius: 100px;
-    font-size: 11px; font-weight: 600; color: var(--orange);
+    font-size: 10px; font-weight: 600; color: var(--orange);
     letter-spacing: 0.1em; text-transform: uppercase;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
     font-family: 'JetBrains Mono', monospace;
   }
 
   .hero-eyebrow::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
     background: var(--orange);
     animation: glowPulse 2s ease-in-out infinite;
   }
 
   .hero h1 {
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 800; line-height: 1.05;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800; line-height: 1.08;
     letter-spacing: -0.04em;
-    max-width: 700px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .hero h1 .strike {
@@ -185,16 +194,16 @@ const styles = `
   .hero h1 .accent { color: var(--orange); }
 
   .hero-sub {
-    font-size: 17px; color: var(--text-sub);
-    max-width: 480px; line-height: 1.6;
-    margin-bottom: 48px;
+    font-size: 15px; color: var(--text-sub);
+    max-width: 420px; line-height: 1.6;
+    margin-bottom: 32px;
     font-weight: 400;
   }
 
-  .hero-ctas { display: flex; gap: 16px; }
+  .hero-ctas { display: flex; gap: 12px; }
 
   .btn-large {
-    padding: 14px 32px; border-radius: 8px;
+    padding: 12px 28px; border-radius: 8px;
     font-size: 15px; font-weight: 700;
     font-family: 'Syne', sans-serif;
     cursor: pointer; letter-spacing: 0.02em;
@@ -753,7 +762,9 @@ const styles = `
   /* RESPONSIVE */
   @media (max-width: 900px) {
     nav { padding: 16px 24px; }
-    section { padding: 80px 24px; }
+    section { padding: 48px 24px; }
+    .hero { grid-template-columns: 1fr; padding-top: 100px; }
+    .hero-right { display: none; }
     .sim-grid { grid-template-columns: 1fr; }
     .sim-center { flex-direction: row; padding-top: 0; }
     .states-grid { grid-template-columns: 1fr; }
@@ -933,7 +944,9 @@ export default function SkipQ() {
       <section className="hero">
         <div className="hero-grid" />
         <div className="scanline" />
-        <div className="hero-content">
+
+        {/* LEFT */}
+        <div className="hero-left">
           <div className="hero-eyebrow reveal">REAL-TIME CAMPUS FOOD COORDINATION</div>
           <h1 className="reveal reveal-delay-1">
             Queue is a<br />
@@ -946,6 +959,36 @@ export default function SkipQ() {
           <div className="hero-ctas reveal reveal-delay-3">
             <button className="btn-large btn-large-primary" onClick={() => setShowLogin(true)}>Enter System</button>
             <button className="btn-large btn-large-ghost" onClick={() => document.getElementById('simulation')?.scrollIntoView({ behavior: 'smooth' })}>View Flow →</button>
+          </div>
+        </div>
+
+        {/* RIGHT — live order card */}
+        <div className="hero-right reveal reveal-delay-2">
+          <div className="dashboard-card" style={{ marginTop: 0, maxWidth: '100%' }}>
+            <div className="dashboard-header">
+              <div className="dashboard-dots">
+                <div className="dashboard-dot" style={{ background: '#ef4444' }} />
+                <div className="dashboard-dot" style={{ background: '#facc15' }} />
+                <div className="dashboard-dot" style={{ background: '#4ade80' }} />
+              </div>
+              <span className="dashboard-title">skipq — live order stream</span>
+            </div>
+            <div className="dashboard-body">
+              {orders.map((o, i) => (
+                <div className="order-row" key={i}>
+                  <span className="order-id mono">{o.id}</span>
+                  <span className="order-item">{o.item}</span>
+                  <StatusCycler delay={i * 700} />
+                  <span className="order-time mono">{o.time}</span>
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+                <div className="ready-badge">
+                  <div className="ready-dot" />
+                  Ready in 4 min · Order #0041
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
