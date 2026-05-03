@@ -151,8 +151,8 @@ const styles = `
 
   /* HERO */
   .hero {
-    min-height: 100vh; overflow: hidden;
-    padding-top: 80px; padding-bottom: 40px;
+    overflow: hidden;
+    padding-top: 100px; padding-bottom: 60px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
