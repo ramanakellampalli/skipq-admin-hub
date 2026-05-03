@@ -835,16 +835,6 @@ function FlowChips() {
 }
 
 // Chaos bars for state card
-function ChaosViz() {
-  const heights = [60, 90, 45, 75, 100, 55, 80, 65, 85, 50, 95, 40];
-  return (
-    <div className="chaos-bars">
-      {heights.map((h, i) => (
-        <div key={i} className="chaos-bar" style={{ height: `${h}%`, animationDelay: `${i * 0.15}s` }} />
-      ))}
-    </div>
-  );
-}
 
 // Login modal
 function LoginModal({ onClose }: { onClose: () => void }) {
@@ -1049,59 +1039,6 @@ export default function SkipQ() {
             <FlowChips />
             <div style={{ marginTop: 16, fontSize: 12, color: 'rgba(74,222,128,0.6)', fontFamily: 'JetBrains Mono, monospace' }}>
               system nominal · all orders tracked
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. SYSTEM STATES ── */}
-      <section id="states">
-
-        <div className="states-grid">
-          {/* STATE 1 */}
-          <div className="state-card reveal">
-            <div className="state-num">STATE 01</div>
-            <div className="state-name">CHAOS</div>
-            <div className="state-desc">
-              Demand exists but is unorganized. Queues form organically, wait times grow unpredictably, and vendors receive no structured input.
-            </div>
-            <div className="state-visual">
-              <ChaosViz />
-            </div>
-          </div>
-
-          {/* STATE 2 */}
-          <div className="state-card reveal reveal-delay-1">
-            <div className="state-num">STATE 02</div>
-            <div className="state-name">SYNCHRONIZED</div>
-            <div className="state-desc">
-              Orders enter structure. Vendors receive live input. Demand is quantified and sequenced. The system begins to self-regulate.
-            </div>
-            <div className="state-visual">
-              <div className="sync-lines">
-                {[100, 80, 95, 70, 88].map((w, i) => (
-                  <div key={i} className="sync-line" style={{ animationDelay: `${i * 0.3}s` }} />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* STATE 3 */}
-          <div className="state-card reveal reveal-delay-2">
-            <div className="state-num">STATE 03</div>
-            <div className="state-name">FLOW</div>
-            <div className="state-desc">
-              Predictable execution. Orders move through defined stages. Time becomes structured. No waiting loops, no system collapse.
-            </div>
-            <div className="state-visual">
-              <div className="flow-indicators">
-                {['ORDERED', 'PREPARING', 'READY'].map((s, i) => (
-                  <div className="flow-indicator" key={i}>
-                    <span style={{ width: 72, flexShrink: 0 }}>{s}</span>
-                    <div className="flow-indicator-bar" style={{ '--delay': `${i * 0.4}s` } as any} />
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
