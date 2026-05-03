@@ -1147,23 +1147,6 @@ export default function SkipQ() {
       </section>
 
 
-      {/* ── 6. FINAL SYSTEM STATEMENT ── */}
-      <section className="final" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(249,115,22,0.06), transparent)' }}>
-        <div className="final-overline reveal">// END OF QUEUE</div>
-        <h2 className="reveal reveal-delay-1">
-          SkipQ is a<br />
-          <span style={{ color: 'var(--orange)' }}>coordination layer.</span>
-        </h2>
-        <div className="final-system-lines reveal reveal-delay-2">
-          <span className="final-line">Not ordering. Not queueing.</span>
-          <span className="final-line highlight">Execution flow.</span>
-          <span className="final-line">Time becomes structured.</span>
-        </div>
-        <button className="btn-large btn-large-primary reveal reveal-delay-3" onClick={() => setShowLogin(true)}>
-          Get Started →
-        </button>
-      </section>
-
       {/* FOOTER */}
       <footer>
         <div className="footer-logo">Skip<span>Q</span></div>
