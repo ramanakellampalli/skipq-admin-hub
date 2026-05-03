@@ -152,7 +152,7 @@ const styles = `
   /* HERO */
   .hero {
     overflow: hidden;
-    padding-top: 100px; padding-bottom: 60px;
+    padding-top: 72px; padding-bottom: 48px;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
