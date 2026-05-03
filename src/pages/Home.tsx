@@ -80,12 +80,6 @@ export default function Home() {
       {/* NAV */}
       <nav style={s.nav} className="nav">
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
-        <div style={s.navLinks} className="nav-links">
-          <a href="#how" style={s.navLink}>How It Works</a>
-          <a href="#vendors" style={s.navLink}>For Vendors</a>
-          <a href="#features" style={s.navLink}>Features</a>
-          <a href="#contact" style={s.navLink}>Contact</a>
-        </div>
         <button style={s.adminBtn} onClick={() => setShowLogin(true)}>🔒 Admin Login</button>
       </nav>
 
@@ -120,7 +114,6 @@ export default function Home() {
 
       {/* WHY SKIPQ */}
       <section style={s.features} id="features">
-        <h2 style={s.featuresTitle}>Why SkipQ?</h2>
         <div style={s.featuresGrid} className="features-grid">
           {[
             { icon: '⏱', color: '#f97316', bg: 'rgba(249,115,22,0.12)', title: 'Save Time', desc: 'Order in advance and skip long waiting lines.' },
@@ -141,6 +134,10 @@ export default function Home() {
       <footer style={s.footer}>
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
         <div style={{ fontSize: 13, color: '#9ca3af' }}>© 2026 SkipQ · Real-time campus food ordering</div>
+        <div style={{ fontSize: 13, color: '#6b7280' }}>
+          For more details & onboarding —{' '}
+          <a href="mailto:info@ohyeahsaas.com" style={{ color: '#f97316', textDecoration: 'none', fontWeight: 600 }}>info@ohyeahsaas.com</a>
+        </div>
       </footer>
     </div>
   );
@@ -158,7 +155,7 @@ const s: Record<string, React.CSSProperties> = {
   navLinks: { display: 'flex', gap: 32, alignItems: 'center' },
   navLink: { fontSize: 14, color: '#6b7280', textDecoration: 'none', fontWeight: 500 },
   adminBtn: {
-    padding: '10px 20px', background: '#f97316', color: '#000',
+    padding: '10px 20px', background: '#f9b17dff', color: '#000',
     border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
   },
   hero: {
@@ -191,9 +188,9 @@ const s: Record<string, React.CSSProperties> = {
   trustIcon: { fontSize: 14 },
   trustSep: { color: '#d1d5db', fontSize: 14 },
   mobileImg: { width: '100%', maxWidth: 520, objectFit: 'contain' as const },
-  features: { padding: '48px 80px 56px', background: '#f8fafc', textAlign: 'center' },
+  features: { padding: '1rem', background: '#f8fafc', textAlign: 'center' },
   featuresTitle: { fontSize: 26, fontWeight: 800, marginBottom: 36, letterSpacing: '-0.02em' },
-  featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, maxWidth: 960, margin: '0 auto' },
+  featuresGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, margin: '0 auto' },
   featureCard: { background: 'transparent', padding: '20px 16px', textAlign: 'center' },
   featureIconCircle: { width: 56, height: 56, borderRadius: 16, fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' },
   featureTitle: { fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#0f172a' },
