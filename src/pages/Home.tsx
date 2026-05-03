@@ -1044,35 +1044,6 @@ export default function SkipQ() {
         </div>
       </section>
 
-      {/* ── 4. ACTORS ── */}
-      <section id="actors" style={{ background: 'rgba(0,0,0,0.2)' }}>
-
-        <div className="actors-row">
-          <div className="actor-card actor-student reveal">
-            <div className="actor-icon">🎓</div>
-            <div className="actor-role">ENTITY_01</div>
-            <div className="actor-name">Student</div>
-            <div className="actor-desc">Generates intent. Places structured demand into the system and receives a deterministic output time.</div>
-            <span className="actor-tag">→ generates_intent</span>
-          </div>
-          <div className="actor-card actor-vendor reveal reveal-delay-1">
-            <div className="actor-icon">🍳</div>
-            <div className="actor-role">ENTITY_02</div>
-            <div className="actor-name">Vendor</div>
-            <div className="actor-desc">Executes orders. Receives live sequenced input and operates within a structured preparation flow.</div>
-            <span className="actor-tag">→ executes_orders</span>
-          </div>
-          <div className="actor-card actor-campus reveal reveal-delay-2">
-            <div className="actor-icon">🏛</div>
-            <div className="actor-role">ENTITY_03</div>
-            <div className="actor-name">Campus</div>
-            <div className="actor-desc">Observes the system. Monitors throughput, vendor performance, and demand distribution across the network.</div>
-            <span className="actor-tag">→ observes_system</span>
-          </div>
-        </div>
-      </section>
-
-
       {/* FOOTER */}
       <footer>
         <div className="footer-logo">Skip<span>Q</span></div>
