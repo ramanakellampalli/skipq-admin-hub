@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { useAdminStore } from "@/lib/adminStore";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
@@ -144,10 +147,10 @@ const styles = `
   .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.1); }
 
   /* SECTIONS */
-  section { display: flex; flex-direction: column; justify-content: center; padding: 80px 48px; position: relative; }
+  section { display: flex; flex-direction: column; justify-content: center; padding: 60px 48px; position: relative; }
 
   /* HERO */
-  .hero { min-height: 100vh; align-items: flex-start; overflow: hidden; }
+  .hero { min-height: 100vh; align-items: flex-start; justify-content: center; overflow: hidden; padding-top: 120px; }
 
   .hero-eyebrow {
     display: inline-flex; align-items: center; gap: 10px;
@@ -167,11 +170,11 @@ const styles = `
   }
 
   .hero h1 {
-    font-size: clamp(56px, 7vw, 96px);
-    font-weight: 800; line-height: 1.0;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800; line-height: 1.05;
     letter-spacing: -0.04em;
-    max-width: 900px;
-    margin-bottom: 24px;
+    max-width: 700px;
+    margin-bottom: 20px;
   }
 
   .hero h1 .strike {
@@ -250,7 +253,7 @@ const styles = `
   }
 
   .sim-title {
-    font-size: clamp(32px, 4vw, 52px);
+    font-size: clamp(24px, 3vw, 40px);
     font-weight: 800; letter-spacing: -0.03em;
     margin-bottom: 40px;
     max-width: 600px;
@@ -587,7 +590,7 @@ const styles = `
   }
 
   .final h2 {
-    font-size: clamp(40px, 6vw, 80px);
+    font-size: clamp(32px, 4vw, 56px);
     font-weight: 800; letter-spacing: -0.04em;
     line-height: 1.05; margin-bottom: 16px;
     max-width: 800px;
@@ -626,7 +629,7 @@ const styles = `
   }
 
   .section-title {
-    font-size: clamp(36px, 4vw, 56px);
+    font-size: clamp(28px, 3vw, 44px);
     font-weight: 800; letter-spacing: -0.03em;
     margin-bottom: 40px;
   }
@@ -645,6 +648,107 @@ const styles = `
   .stat { display: flex; flex-direction: column; gap: 4px; }
   .stat-val { font-size: 32px; font-weight: 800; color: var(--orange); letter-spacing: -0.03em; }
   .stat-label { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* LOGIN MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-card {
+    width: 100%; max-width: 400px;
+    background: #0d1520;
+    border: 1px solid rgba(249,115,22,0.2);
+    border-radius: 16px;
+    padding: 40px 36px;
+    position: relative;
+    animation: slideUp 0.25s ease;
+    box-shadow: 0 0 60px rgba(249,115,22,0.08), 0 24px 64px rgba(0,0,0,0.6);
+  }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: transparent; color: var(--text-muted);
+    cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    font-family: 'Syne', sans-serif;
+  }
+  .modal-close:hover { border-color: var(--orange); color: var(--orange); }
+
+  .modal-logo {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--orange); color: #000;
+    font-size: 15px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .modal-title {
+    font-size: 22px; font-weight: 800;
+    letter-spacing: -0.03em; margin-bottom: 4px;
+  }
+
+  .modal-sub {
+    font-size: 13px; color: var(--text-muted);
+    margin-bottom: 32px; font-weight: 400;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .modal-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+  .modal-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .modal-input {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: #fff; font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    outline: none; transition: border-color 0.2s;
+  }
+  .modal-input::placeholder { color: var(--text-muted); }
+  .modal-input:focus { border-color: rgba(249,115,22,0.5); }
+
+  .modal-error {
+    padding: 10px 14px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px;
+    font-size: 12px; color: #f87171;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  .modal-submit {
+    width: 100%; padding: 14px;
+    background: var(--orange); color: #000;
+    border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    cursor: pointer; margin-top: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .modal-submit:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+  .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
   /* RESPONSIVE */
   @media (max-width: 900px) {
@@ -731,6 +835,60 @@ function ChaosViz() {
   );
 }
 
+// Login modal
+function LoginModal({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const login = useAuth((s) => s.login);
+  const setSync = useAdminStore((s) => s.setSync);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.login(email, password);
+      if (res.role !== "ADMIN") { setError("Access denied. Admin accounts only."); return; }
+      login(res.token, { email: res.email, name: res.name });
+      navigate("/dashboard");
+      api.sync().then(setSync).catch(() => {});
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(msg || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal-card">
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-logo">SQ</div>
+        <div className="modal-title">SkipQ Admin</div>
+        <div className="modal-sub">// admin access only</div>
+        <form onSubmit={handleSubmit}>
+          {error && <div className="modal-error">{error}</div>}
+          <div className="modal-field">
+            <label className="modal-label">Email</label>
+            <input className="modal-input" type="email" placeholder="admin@skipq.com" value={email} onChange={e => setEmail(e.target.value)} required />
+          </div>
+          <div className="modal-field">
+            <label className="modal-label">Password</label>
+            <input className="modal-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+          </div>
+          <button className="modal-submit" type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In →"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // Scroll reveal hook
 function useReveal() {
   useEffect(() => {
@@ -745,7 +903,7 @@ function useReveal() {
 
 export default function SkipQ() {
   useReveal();
-  const navigate = useNavigate();
+  const [showLogin, setShowLogin] = useState(false);
 
   const orders = [
     { id: '#0041', item: 'Chicken Burger + Fries', time: '→ 0:42' },
@@ -757,6 +915,7 @@ export default function SkipQ() {
   return (
     <>
       <style>{styles}</style>
+      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
 
       {/* NAV */}
       <nav>
@@ -765,8 +924,8 @@ export default function SkipQ() {
           <a href="#simulation">System</a>
           <a href="#states">States</a>
           <a href="#actors">Entities</a>
-          <button className="btn-ghost" onClick={() => navigate('/login')}>Log in</button>
-          <button className="btn-primary" onClick={() => navigate('/login')}>Enter System</button>
+          <button className="btn-ghost" onClick={() => setShowLogin(true)}>Log in</button>
+          <button className="btn-primary" onClick={() => setShowLogin(true)}>Enter System</button>
         </div>
       </nav>
 
@@ -785,7 +944,7 @@ export default function SkipQ() {
             SkipQ replaces waiting with coordination. A real-time execution layer between students, vendors, and campuses.
           </p>
           <div className="hero-ctas reveal reveal-delay-3">
-            <button className="btn-large btn-large-primary" onClick={() => navigate('/login')}>Enter System</button>
+            <button className="btn-large btn-large-primary" onClick={() => setShowLogin(true)}>Enter System</button>
             <button className="btn-large btn-large-ghost" onClick={() => document.getElementById('simulation')?.scrollIntoView({ behavior: 'smooth' })}>View Flow →</button>
           </div>
         </div>
@@ -996,7 +1155,7 @@ export default function SkipQ() {
           <span className="final-line highlight">Execution flow.</span>
           <span className="final-line">Time becomes structured.</span>
         </div>
-        <button className="btn-large btn-large-primary reveal reveal-delay-3" onClick={() => navigate('/login')}>
+        <button className="btn-large btn-large-primary reveal reveal-delay-3" onClick={() => setShowLogin(true)}>
           Get Started →
         </button>
       </section>
