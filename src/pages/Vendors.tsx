@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { api, type CreateVendorPayload } from "@/lib/api";
+import { api, type CreateVendorPayload, type Vendor } from "@/lib/api";
 import { useAdminStore } from "@/lib/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 
 const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10, campusId: "" };
@@ -17,10 +18,33 @@ export default function Vendors() {
   const vendors = useAdminStore((s) => s.vendors);
   const campuses = useAdminStore((s) => s.campuses);
   const setSync = useAdminStore((s) => s.setSync);
+  const updateVendorStatus = useAdminStore((s) => s.updateVendorStatus);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [suspendTarget, setSuspendTarget] = useState<Vendor | null>(null);
+  const [suspendNote, setSuspendNote] = useState("");
+  const [suspending, setSuspending] = useState(false);
+
+  const handleSuspend = async () => {
+    if (!suspendTarget) return;
+    setSuspending(true);
+    try {
+      await api.updateVendorStatus(suspendTarget.id, { status: "SUSPENDED", note: suspendNote });
+      updateVendorStatus(suspendTarget.id, "SUSPENDED", suspendNote);
+      setSuspendTarget(null);
+      setSuspendNote("");
+    } finally {
+      setSuspending(false);
+    }
+  };
+
+  const handleReinstate = async (v: Vendor) => {
+    await api.updateVendorStatus(v.id, { status: "ACTIVE" });
+    updateVendorStatus(v.id, "ACTIVE", null);
+  };
 
   const openAdd = () => { setForm(emptyForm); setError(""); setDialogOpen(true); };
 
@@ -57,6 +81,8 @@ export default function Vendors() {
               <TableHead>Campus</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Prep Time</TableHead>
+              <TableHead>Account</TableHead>
+              <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -67,6 +93,8 @@ export default function Vendors() {
                   <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell />
                 </TableRow>
               ))
             ) : (
@@ -82,12 +110,54 @@ export default function Vendors() {
                     </span>
                   </TableCell>
                   <TableCell>{v.prepTime} min</TableCell>
+                  <TableCell>
+                    {v.accountStatus === "SUSPENDED" ? (
+                      <Badge variant="destructive" className="text-xs">Suspended</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {v.accountStatus === "SUSPENDED" ? (
+                      <Button size="sm" variant="outline" onClick={() => handleReinstate(v)}>Reinstate</Button>
+                    ) : (
+                      <Button size="sm" onClick={() => { setSuspendTarget(v); setSuspendNote(""); }}>Suspend</Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={!!suspendTarget} onOpenChange={(open) => { if (!open) setSuspendTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suspend {suspendTarget?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              This vendor will be blocked from logging in and hidden from customers until reinstated.
+            </p>
+            <div className="space-y-2">
+              <Label>Reason (shown to vendor on login)</Label>
+              <Textarea
+                value={suspendNote}
+                onChange={(e) => setSuspendNote(e.target.value)}
+                placeholder="e.g. Repeated order cancellations. Contact admin to resolve."
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSuspendTarget(null)}>Cancel</Button>
+            <Button onClick={handleSuspend} disabled={!suspendNote.trim() || suspending}>
+              {suspending ? "Suspending..." : "Confirm Suspend"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
