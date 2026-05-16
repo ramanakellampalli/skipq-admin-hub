@@ -34,6 +34,8 @@ export interface Campus {
   emailDomain: string;
 }
 
+export type AccountStatus = "ACTIVE" | "SUSPENDED";
+
 export interface Vendor {
   id: string;
   name: string;
@@ -41,6 +43,13 @@ export interface Vendor {
   prepTime: number;
   campusId: string;
   campusName: string;
+  accountStatus: AccountStatus;
+  suspensionNote: string | null;
+}
+
+export interface UpdateVendorStatusPayload {
+  status: AccountStatus;
+  note?: string;
 }
 
 export interface OrderItem {
@@ -141,5 +150,9 @@ export const api = {
   updateServiceRequest: async (id: string, payload: UpdateServiceRequestPayload): Promise<ServiceRequest> => {
     const { data } = await client.put(`/api/v1/admin/support/${id}`, payload);
     return data;
+  },
+
+  updateVendorStatus: async (id: string, payload: UpdateVendorStatusPayload): Promise<void> => {
+    await client.put(`/api/v1/admin/vendors/${id}/status`, payload);
   },
 };
