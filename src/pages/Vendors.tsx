@@ -121,7 +121,7 @@ export default function Vendors() {
                     {v.accountStatus === "SUSPENDED" ? (
                       <Button size="sm" variant="outline" onClick={() => handleReinstate(v)}>Reinstate</Button>
                     ) : (
-                      <Button size="sm" variant="destructive" onClick={() => { setSuspendTarget(v); setSuspendNote(""); }}>Suspend</Button>
+                      <Button size="sm" onClick={() => { setSuspendTarget(v); setSuspendNote(""); }}>Suspend</Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -152,7 +152,7 @@ export default function Vendors() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSuspendTarget(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleSuspend} disabled={!suspendNote.trim() || suspending}>
+            <Button onClick={handleSuspend} disabled={!suspendNote.trim() || suspending}>
               {suspending ? "Suspending..." : "Confirm Suspend"}
             </Button>
           </DialogFooter>
