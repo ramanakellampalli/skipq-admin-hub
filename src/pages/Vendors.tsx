@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { api, type CreateVendorPayload, type Vendor } from "@/lib/api";
 import { useAdminStore } from "@/lib/adminStore";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { ImageUp, Plus } from "lucide-react";
 
 const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10, campusId: "" };
 
@@ -19,6 +19,7 @@ export default function Vendors() {
   const campuses = useAdminStore((s) => s.campuses);
   const setSync = useAdminStore((s) => s.setSync);
   const updateVendorStatus = useAdminStore((s) => s.updateVendorStatus);
+  const updateVendorLogo = useAdminStore((s) => s.updateVendorLogo);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -27,6 +28,29 @@ export default function Vendors() {
   const [suspendTarget, setSuspendTarget] = useState<Vendor | null>(null);
   const [suspendNote, setSuspendNote] = useState("");
   const [suspending, setSuspending] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadTarget, setUploadTarget] = useState<Vendor | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleLogoClick = (v: Vendor) => {
+    setUploadTarget(v);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !uploadTarget) return;
+    e.target.value = "";
+    setUploading(true);
+    try {
+      const url = await api.uploadVendorLogo(uploadTarget.id, file);
+      updateVendorLogo(uploadTarget.id, url);
+    } finally {
+      setUploading(false);
+      setUploadTarget(null);
+    }
+  };
 
   const handleSuspend = async () => {
     if (!suspendTarget) return;
@@ -73,6 +97,14 @@ export default function Vendors() {
         <Button onClick={openAdd} size="sm"><Plus className="h-4 w-4 mr-1" /> Add Vendor</Button>
       </div>
 
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       <div className="glass-card overflow-hidden">
         <Table>
           <TableHeader>
@@ -117,7 +149,15 @@ export default function Vendors() {
                       <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={uploading && uploadTarget?.id === v.id}
+                      onClick={() => handleLogoClick(v)}
+                    >
+                      <ImageUp className="h-4 w-4" />
+                    </Button>
                     {v.accountStatus === "SUSPENDED" ? (
                       <Button size="sm" variant="outline" onClick={() => handleReinstate(v)}>Reinstate</Button>
                     ) : (
