@@ -6,6 +6,7 @@ interface AdminState extends Partial<AdminSyncData> {
   setSync: (data: AdminSyncData) => void;
   updateServiceRequest: (sr: ServiceRequest) => void;
   updateVendorStatus: (id: string, status: AccountStatus, note: string | null) => void;
+  updateVendorLogo: (id: string, logoUrl: string) => void;
   reset: () => void;
 }
 
@@ -25,6 +26,10 @@ export const useAdminStore = create<AdminState>((set) => ({
       vendors: state.vendors?.map((v) =>
         v.id === id ? { ...v, accountStatus: status, suspensionNote: note } : v
       ),
+    })),
+  updateVendorLogo: (id, logoUrl) =>
+    set((state) => ({
+      vendors: state.vendors?.map((v) => (v.id === id ? { ...v, logoUrl } : v)),
     })),
   reset: () =>
     set({ isSynced: false, stats: undefined, campuses: undefined, vendors: undefined, orders: undefined, serviceRequests: undefined }),

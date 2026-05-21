@@ -45,6 +45,7 @@ export interface Vendor {
   campusName: string;
   accountStatus: AccountStatus;
   suspensionNote: string | null;
+  logoUrl: string | null;
 }
 
 export interface UpdateVendorStatusPayload {
@@ -154,5 +155,16 @@ export const api = {
 
   updateVendorStatus: async (id: string, payload: UpdateVendorStatusPayload): Promise<void> => {
     await client.put(`/api/v1/admin/vendors/${id}/status`, payload);
+  },
+
+  uploadVendorLogo: async (vendorId: string, file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const { data } = await client.put<{ url: string }>(
+      `/api/v1/profile/avatar?vendorId=${vendorId}`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return data.url;
   },
 };
