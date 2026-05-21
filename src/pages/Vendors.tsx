@@ -150,14 +150,16 @@ export default function Vendors() {
                     )}
                   </TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={uploading && uploadTarget?.id === v.id}
-                      onClick={() => handleLogoClick(v)}
-                    >
-                      <ImageUp className="h-4 w-4" />
-                    </Button>
+                    {v.accountStatus !== "SUSPENDED" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={uploading && uploadTarget?.id === v.id}
+                        onClick={() => handleLogoClick(v)}
+                      >
+                        <ImageUp className="h-4 w-4" />
+                      </Button>
+                    )}
                     {v.accountStatus === "SUSPENDED" ? (
                       <Button size="sm" variant="outline" onClick={() => handleReinstate(v)}>Reinstate</Button>
                     ) : (
