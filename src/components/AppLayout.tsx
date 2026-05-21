@@ -1,9 +1,20 @@
+import { useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useAuth } from "@/lib/auth";
+import { useAdminStore } from "@/lib/adminStore";
+import { api } from "@/lib/api";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const user = useAuth((s) => s.user);
+  const isSynced = useAdminStore((s) => s.isSynced);
+  const setSync = useAdminStore((s) => s.setSync);
+
+  useEffect(() => {
+    if (!isSynced) {
+      api.sync().then(setSync).catch(() => {});
+    }
+  }, [isSynced, setSync]);
 
   return (
     <SidebarProvider>
