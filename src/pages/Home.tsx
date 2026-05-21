@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -10,6 +11,7 @@ function LoginModal({ onClose }: { onClose: () => void }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const login = useAuth((s) => s.login);
   const setSync = useAdminStore((s) => s.setSync);
 
@@ -46,7 +48,12 @@ function LoginModal({ onClose }: { onClose: () => void }) {
           </div>
           <div style={s.field}>
             <label style={s.label}>Password</label>
-            <input style={s.input} type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+            <div style={s.passwordWrap}>
+              <input style={s.passwordInput} type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+              <button type="button" style={s.eyeBtn} onClick={() => setShowPassword(v => !v)}>
+                {showPassword ? <EyeOff size={16} color="#9ca3af" /> : <Eye size={16} color="#9ca3af" />}
+              </button>
+            </div>
           </div>
           <button style={s.modalBtn} type="submit" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
@@ -223,6 +230,15 @@ const s: Record<string, React.CSSProperties> = {
   input: {
     padding: '11px 14px', border: '1px solid #e5e7eb', borderRadius: 8,
     fontSize: 14, color: '#0f172a', background: '#f9fafb', outline: 'none',
+  },
+  passwordWrap: { position: 'relative' as const, display: 'flex', alignItems: 'center' },
+  passwordInput: {
+    width: '100%', padding: '11px 40px 11px 14px', border: '1px solid #e5e7eb', borderRadius: 8,
+    fontSize: 14, color: '#0f172a', background: '#f9fafb', outline: 'none', boxSizing: 'border-box' as const,
+  },
+  eyeBtn: {
+    position: 'absolute' as const, right: 12, background: 'transparent',
+    border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center',
   },
   modalError: {
     padding: '10px 14px', background: 'rgba(239,68,68,0.06)',
