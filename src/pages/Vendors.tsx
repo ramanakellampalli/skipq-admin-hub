@@ -12,7 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUp, Plus } from "lucide-react";
 
-const emptyForm: CreateVendorPayload = { vendorName: "", email: "", ownerName: "", defaultPrepTime: 10, campusId: "" };
+const emptyForm: CreateVendorPayload = {
+  vendorName: "", email: "", ownerName: "", defaultPrepTime: 10,
+  campusId: null, city: "", ownerPhone: "",
+};
 
 export default function Vendors() {
   const vendors = useAdminStore((s) => s.vendors);
@@ -88,7 +91,10 @@ export default function Vendors() {
     }
   };
 
-  const isValid = form.vendorName && form.email && form.ownerName && form.defaultPrepTime > 0 && form.campusId;
+  const isValid =
+    form.vendorName && form.email && form.ownerName &&
+    form.defaultPrepTime > 0 && form.ownerPhone &&
+    (form.campusId || form.city);
 
   return (
     <div className="space-y-6">
@@ -134,7 +140,10 @@ export default function Vendors() {
                 <TableRow key={v.id}>
                   <TableCell className="font-medium">{v.name}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-xs">{v.campusName}</Badge>
+                    {v.campusName
+                      ? <Badge variant="outline" className="text-xs">{v.campusName}</Badge>
+                      : <Badge variant="secondary" className="text-xs">General · {v.city}</Badge>
+                    }
                   </TableCell>
                   <TableCell>
                     <span className={v.isOpen ? "text-green-600 text-sm font-medium" : "text-muted-foreground text-sm"}>
@@ -202,19 +211,23 @@ export default function Vendors() {
       </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="flex flex-col max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Add Vendor</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="overflow-y-auto flex-1 -mx-6 px-6 space-y-4">
             {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="space-y-2">
-              <Label>Campus</Label>
-              <Select value={form.campusId} onValueChange={(v) => setForm((f) => ({ ...f, campusId: v }))}>
+              <Label>Campus <span className="text-muted-foreground font-normal">(optional)</span></Label>
+              <Select
+                value={form.campusId ?? "__none__"}
+                onValueChange={(v) => setForm((f) => ({ ...f, campusId: v === "__none__" ? null : v }))}
+              >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a campus" />
+                  <SelectValue placeholder="General vendor (no campus)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__none__">General vendor (no campus)</SelectItem>
                   {(campuses ?? []).map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name} <span className="text-muted-foreground ml-1">@{c.emailDomain}</span>
@@ -223,6 +236,12 @@ export default function Vendors() {
                 </SelectContent>
               </Select>
             </div>
+            {!form.campusId && (
+              <div className="space-y-2">
+                <Label>City <span className="text-destructive">*</span></Label>
+                <Input value={form.city ?? ""} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} placeholder="e.g. Bangalore" maxLength={100} />
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Vendor Name</Label>
               <Input value={form.vendorName} onChange={(e) => setForm((f) => ({ ...f, vendorName: e.target.value }))} placeholder="e.g. Campus Grill" />
@@ -234,6 +253,10 @@ export default function Vendors() {
             <div className="space-y-2">
               <Label>Owner Email</Label>
               <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="vendor@example.com" />
+            </div>
+            <div className="space-y-2">
+              <Label>Phone</Label>
+              <Input value={form.ownerPhone} onChange={(e) => setForm((f) => ({ ...f, ownerPhone: e.target.value }))} placeholder="+91 98765 43210" maxLength={20} />
             </div>
             <div className="space-y-2">
               <Label>Default Prep Time (minutes)</Label>
