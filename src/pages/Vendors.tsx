@@ -220,14 +220,14 @@ export default function Vendors() {
             <div className="space-y-2">
               <Label>Campus <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Select
-                value={form.campusId ?? ""}
-                onValueChange={(v) => setForm((f) => ({ ...f, campusId: v || null, city: v ? f.city : f.city }))}
+                value={form.campusId ?? "__none__"}
+                onValueChange={(v) => setForm((f) => ({ ...f, campusId: v === "__none__" ? null : v }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="General vendor (no campus)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">General vendor (no campus)</SelectItem>
+                  <SelectItem value="__none__">General vendor (no campus)</SelectItem>
                   {(campuses ?? []).map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name} <span className="text-muted-foreground ml-1">@{c.emailDomain}</span>
