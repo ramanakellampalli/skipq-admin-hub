@@ -215,7 +215,7 @@ export default function Vendors() {
           <DialogHeader>
             <DialogTitle>Add Vendor</DialogTitle>
           </DialogHeader>
-          <div className="overflow-y-auto flex-1 pr-1 space-y-4">
+          <div className="overflow-y-auto flex-1 -mx-6 px-6 space-y-4">
             {error && <p className="text-sm text-destructive">{error}</p>}
             <div className="space-y-2">
               <Label>Campus <span className="text-muted-foreground font-normal">(optional)</span></Label>
