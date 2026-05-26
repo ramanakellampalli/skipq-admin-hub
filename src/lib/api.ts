@@ -125,7 +125,6 @@ export interface CreateVendorPayload {
   campusId?: string | null;
   city?: string;
   ownerPhone: string;
-  contactPhone: string;
 }
 
 export interface CreateCampusPayload {

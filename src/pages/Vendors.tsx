@@ -14,7 +14,7 @@ import { ImageUp, Plus } from "lucide-react";
 
 const emptyForm: CreateVendorPayload = {
   vendorName: "", email: "", ownerName: "", defaultPrepTime: 10,
-  campusId: null, city: "", ownerPhone: "", contactPhone: "",
+  campusId: null, city: "", ownerPhone: "",
 };
 
 export default function Vendors() {
@@ -93,7 +93,7 @@ export default function Vendors() {
 
   const isValid =
     form.vendorName && form.email && form.ownerName &&
-    form.defaultPrepTime > 0 && form.ownerPhone && form.contactPhone &&
+    form.defaultPrepTime > 0 && form.ownerPhone &&
     (form.campusId || form.city);
 
   return (
@@ -255,12 +255,8 @@ export default function Vendors() {
               <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="vendor@example.com" />
             </div>
             <div className="space-y-2">
-              <Label>Owner Phone <span className="text-muted-foreground font-normal text-xs">(stored on account, shown on orders)</span></Label>
+              <Label>Phone</Label>
               <Input value={form.ownerPhone} onChange={(e) => setForm((f) => ({ ...f, ownerPhone: e.target.value }))} placeholder="+91 98765 43210" maxLength={20} />
-            </div>
-            <div className="space-y-2">
-              <Label>Contact Phone <span className="text-muted-foreground font-normal text-xs">(shown to customers on vendor menu)</span></Label>
-              <Input value={form.contactPhone} onChange={(e) => setForm((f) => ({ ...f, contactPhone: e.target.value }))} placeholder="+91 98765 43210" maxLength={20} />
             </div>
             <div className="space-y-2">
               <Label>Default Prep Time (minutes)</Label>
