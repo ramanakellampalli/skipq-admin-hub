@@ -41,8 +41,10 @@ export interface Vendor {
   name: string;
   isOpen: boolean;
   prepTime: number;
-  campusId: string;
-  campusName: string;
+  campusId: string | null;
+  campusName: string | null;
+  city: string | null;
+  phone: string | null;
   accountStatus: AccountStatus;
   suspensionNote: string | null;
   logoUrl: string | null;
@@ -120,7 +122,10 @@ export interface CreateVendorPayload {
   email: string;
   ownerName: string;
   defaultPrepTime: number;
-  campusId: string;
+  campusId?: string | null;
+  city?: string;
+  ownerPhone: string;
+  contactPhone: string;
 }
 
 export interface CreateCampusPayload {
