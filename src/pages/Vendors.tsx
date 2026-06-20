@@ -79,7 +79,7 @@ export default function Vendors() {
     setSaving(true);
     setError("");
     try {
-      await api.createVendor(form);
+      await api.createVendor({ ...form, ownerPhone: `+91${form.ownerPhone}` });
       const syncData = await api.sync();
       setSync(syncData);
       setDialogOpen(false);
@@ -93,7 +93,7 @@ export default function Vendors() {
 
   const isValid =
     form.vendorName && form.email && form.ownerName &&
-    form.defaultPrepTime > 0 && form.ownerPhone &&
+    form.defaultPrepTime > 0 && form.ownerPhone.length === 10 &&
     (form.campusId || form.city);
 
   return (
@@ -256,7 +256,17 @@ export default function Vendors() {
             </div>
             <div className="space-y-2">
               <Label>Phone</Label>
-              <Input value={form.ownerPhone} onChange={(e) => setForm((f) => ({ ...f, ownerPhone: e.target.value }))} placeholder="+91 98765 43210" maxLength={20} />
+              <div className="flex">
+                <span className="flex items-center px-3 bg-muted border border-r-0 border-input rounded-l-md text-sm font-medium text-foreground">+91</span>
+                <Input
+                  className="rounded-l-none"
+                  value={form.ownerPhone}
+                  onChange={(e) => setForm((f) => ({ ...f, ownerPhone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  inputMode="numeric"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Default Prep Time (minutes)</Label>
