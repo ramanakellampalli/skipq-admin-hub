@@ -165,7 +165,7 @@ export const api = {
     const formData = new FormData();
     formData.append("file", file);
     const { data } = await client.put<{ url: string }>(
-      `/api/v1/profile/avatar?vendorId=${vendorId}`,
+      `/api/v1/profile/avatar?id=${vendorId}&type=VENDOR`,
       formData,
       { headers: { "Content-Type": "multipart/form-data" } }
     );
