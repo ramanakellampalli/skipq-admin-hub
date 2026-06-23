@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, ClipboardList, GraduationCap, HeadphonesIcon, LogOut } from "lucide-react";
+import { LayoutDashboard, Store, ClipboardList, GraduationCap, HeadphonesIcon, LogOut, Banknote } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/lib/auth";
 import {
@@ -18,6 +18,7 @@ const navItems = [
   { title: "Campuses", url: "/campuses", icon: GraduationCap },
   { title: "Vendors", url: "/vendors", icon: Store },
   { title: "Orders", url: "/orders", icon: ClipboardList },
+  { title: "Payouts", url: "/payouts", icon: Banknote },
   { title: "Support", url: "/support", icon: HeadphonesIcon },
 ];
 

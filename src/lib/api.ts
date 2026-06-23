@@ -132,6 +132,26 @@ export interface CreateCampusPayload {
   emailDomain: string;
 }
 
+export type PayoutStatus = "PENDING" | "SUCCESS" | "FAILED";
+
+export interface VendorPayout {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  amount: number;
+  settlementStartAt: string;
+  settlementCutoffAt: string;
+  status: PayoutStatus;
+  payoutReference: string | null;
+  adminNote: string | null;
+  createdAt: string;
+}
+
+export interface MarkPayoutSuccessPayload {
+  payoutReference: string;
+  adminNote?: string;
+}
+
 export const api = {
   login: async (email: string, password: string) => {
     const { data } = await client.post("/api/v1/auth/login", { email, password });
@@ -159,6 +179,23 @@ export const api = {
 
   updateVendorStatus: async (id: string, payload: UpdateVendorStatusPayload): Promise<void> => {
     await client.put(`/api/v1/admin/vendors/${id}/status`, payload);
+  },
+
+  listPayouts: async (status?: PayoutStatus): Promise<VendorPayout[]> => {
+    const params = status ? `?status=${status}` : "";
+    const { data } = await client.get(`/api/v1/admin/payouts${params}`);
+    return data;
+  },
+
+  markPayoutSuccess: async (id: string, payload: MarkPayoutSuccessPayload): Promise<VendorPayout> => {
+    const { data } = await client.put(`/api/v1/admin/payouts/${id}/success`, payload);
+    return data;
+  },
+
+  markPayoutFailed: async (id: string, adminNote?: string): Promise<VendorPayout> => {
+    const params = adminNote ? `?adminNote=${encodeURIComponent(adminNote)}` : "";
+    const { data } = await client.put(`/api/v1/admin/payouts/${id}/failed${params}`);
+    return data;
   },
 
   uploadVendorLogo: async (vendorId: string, file: File): Promise<string> => {
