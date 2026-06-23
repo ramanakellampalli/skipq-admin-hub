@@ -10,11 +10,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { ImageUp, Plus } from "lucide-react";
 
 const emptyForm: CreateVendorPayload = {
   vendorName: "", email: "", ownerName: "", defaultPrepTime: 10,
   campusId: null, city: "", ownerPhone: "",
+  businessName: "", pan: "", bankAccount: "", ifsc: "",
+  gstRegistered: false, gstin: "",
 };
 
 export default function Vendors() {
@@ -23,6 +26,7 @@ export default function Vendors() {
   const setSync = useAdminStore((s) => s.setSync);
   const updateVendorStatus = useAdminStore((s) => s.updateVendorStatus);
   const updateVendorLogo = useAdminStore((s) => s.updateVendorLogo);
+  const approveVendorKyc = useAdminStore((s) => s.approveVendorKyc);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -31,6 +35,9 @@ export default function Vendors() {
   const [suspendTarget, setSuspendTarget] = useState<Vendor | null>(null);
   const [suspendNote, setSuspendNote] = useState("");
   const [suspending, setSuspending] = useState(false);
+
+  const [kycTarget, setKycTarget] = useState<Vendor | null>(null);
+  const [approvingKyc, setApprovingKyc] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<Vendor | null>(null);
@@ -73,13 +80,31 @@ export default function Vendors() {
     updateVendorStatus(v.id, "ACTIVE", null);
   };
 
+  const handleApproveKyc = async () => {
+    if (!kycTarget) return;
+    setApprovingKyc(true);
+    try {
+      await api.approveKyc(kycTarget.id);
+      approveVendorKyc(kycTarget.id);
+      setKycTarget(null);
+    } finally {
+      setApprovingKyc(false);
+    }
+  };
+
   const openAdd = () => { setForm(emptyForm); setError(""); setDialogOpen(true); };
 
   const save = async () => {
     setSaving(true);
     setError("");
     try {
-      await api.createVendor({ ...form, ownerPhone: `+91${form.ownerPhone}` });
+      await api.createVendor({
+        ...form,
+        ownerPhone: `+91${form.ownerPhone}`,
+        pan: form.pan.toUpperCase(),
+        ifsc: form.ifsc.toUpperCase(),
+        gstin: form.gstRegistered ? form.gstin?.toUpperCase() : undefined,
+      });
       const syncData = await api.sync();
       setSync(syncData);
       setDialogOpen(false);
@@ -94,7 +119,10 @@ export default function Vendors() {
   const isValid =
     form.vendorName && form.email && form.ownerName &&
     form.defaultPrepTime > 0 && form.ownerPhone.length === 10 &&
-    (form.campusId || form.city);
+    (form.campusId || form.city) &&
+    form.businessName && form.pan.length === 10 &&
+    form.bankAccount && form.ifsc.length === 11 &&
+    (!form.gstRegistered || (form.gstin && form.gstin.length === 15));
 
   return (
     <div className="space-y-6">
@@ -120,6 +148,7 @@ export default function Vendors() {
               <TableHead>Status</TableHead>
               <TableHead>Prep Time</TableHead>
               <TableHead>Account</TableHead>
+              <TableHead>KYC</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -132,6 +161,7 @@ export default function Vendors() {
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell />
                 </TableRow>
               ))
@@ -158,7 +188,23 @@ export default function Vendors() {
                       <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>
                     )}
                   </TableCell>
+                  <TableCell>
+                    {v.kycApproved ? (
+                      <Badge variant="outline" className="text-xs text-green-600 border-green-300">Approved</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs text-amber-600">Pending</Badge>
+                    )}
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
+                    {!v.kycApproved && v.accountStatus !== "SUSPENDED" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setKycTarget(v)}
+                      >
+                        Approve KYC
+                      </Button>
+                    )}
                     {v.accountStatus !== "SUSPENDED" && (
                       <Button
                         size="sm"
@@ -182,6 +228,34 @@ export default function Vendors() {
         </Table>
       </div>
 
+      {/* Approve KYC dialog */}
+      <Dialog open={!!kycTarget} onOpenChange={(open) => { if (!open) setKycTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve KYC — {kycTarget?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Confirm that you have verified the business name, PAN, bank account, and IFSC for this vendor.
+              Once approved, the vendor will be able to receive settlements.
+            </p>
+            {kycTarget?.businessName && (
+              <p className="text-sm"><span className="font-medium">Business:</span> {kycTarget.businessName}</p>
+            )}
+            {kycTarget?.gstRegistered && kycTarget?.gstin && (
+              <p className="text-sm"><span className="font-medium">GSTIN:</span> {kycTarget.gstin}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setKycTarget(null)}>Cancel</Button>
+            <Button onClick={handleApproveKyc} disabled={approvingKyc}>
+              {approvingKyc ? "Approving..." : "Confirm Approve"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Suspend dialog */}
       <Dialog open={!!suspendTarget} onOpenChange={(open) => { if (!open) setSuspendTarget(null); }}>
         <DialogContent>
           <DialogHeader>
@@ -210,6 +284,7 @@ export default function Vendors() {
         </DialogContent>
       </Dialog>
 
+      {/* Add Vendor dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="flex flex-col max-h-[90vh]">
           <DialogHeader>
@@ -217,6 +292,7 @@ export default function Vendors() {
           </DialogHeader>
           <div className="overflow-y-auto flex-1 -mx-6 px-6 space-y-4">
             {error && <p className="text-sm text-destructive">{error}</p>}
+
             <div className="space-y-2">
               <Label>Campus <span className="text-muted-foreground font-normal">(optional)</span></Label>
               <Select
@@ -271,6 +347,54 @@ export default function Vendors() {
             <div className="space-y-2">
               <Label>Default Prep Time (minutes)</Label>
               <Input type="number" min={1} value={form.defaultPrepTime} onChange={(e) => setForm((f) => ({ ...f, defaultPrepTime: Number(e.target.value) }))} />
+            </div>
+
+            <div className="border-t pt-4 space-y-4">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Business & KYC Details</p>
+              <div className="space-y-2">
+                <Label>Business Name <span className="text-destructive">*</span></Label>
+                <Input value={form.businessName} onChange={(e) => setForm((f) => ({ ...f, businessName: e.target.value }))} placeholder="Registered business name" />
+              </div>
+              <div className="space-y-2">
+                <Label>PAN <span className="text-destructive">*</span></Label>
+                <Input
+                  value={form.pan}
+                  onChange={(e) => setForm((f) => ({ ...f, pan: e.target.value.toUpperCase().slice(0, 10) }))}
+                  placeholder="ABCDE1234F"
+                  maxLength={10}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Bank Account Number <span className="text-destructive">*</span></Label>
+                <Input value={form.bankAccount} onChange={(e) => setForm((f) => ({ ...f, bankAccount: e.target.value }))} placeholder="Account number" inputMode="numeric" />
+              </div>
+              <div className="space-y-2">
+                <Label>IFSC Code <span className="text-destructive">*</span></Label>
+                <Input
+                  value={form.ifsc}
+                  onChange={(e) => setForm((f) => ({ ...f, ifsc: e.target.value.toUpperCase().slice(0, 11) }))}
+                  placeholder="SBIN0001234"
+                  maxLength={11}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={form.gstRegistered}
+                  onCheckedChange={(checked) => setForm((f) => ({ ...f, gstRegistered: checked, gstin: checked ? f.gstin : "" }))}
+                />
+                <Label className="cursor-pointer">GST Registered</Label>
+              </div>
+              {form.gstRegistered && (
+                <div className="space-y-2">
+                  <Label>GSTIN <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={form.gstin ?? ""}
+                    onChange={(e) => setForm((f) => ({ ...f, gstin: e.target.value.toUpperCase().slice(0, 15) }))}
+                    placeholder="22ABCDE1234F1Z5"
+                    maxLength={15}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
