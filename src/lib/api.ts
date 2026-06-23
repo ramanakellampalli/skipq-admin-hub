@@ -191,10 +191,6 @@ export const api = {
     await client.put(`/api/v1/admin/vendors/${id}/status`, payload);
   },
 
-  approveKyc: async (id: string): Promise<void> => {
-    await client.put(`/api/v1/admin/vendors/${id}/kyc-approve`);
-  },
-
   listPayouts: async (status?: PayoutStatus): Promise<VendorPayout[]> => {
     const params = status ? `?status=${status}` : "";
     const { data } = await client.get(`/api/v1/admin/payouts${params}`);
