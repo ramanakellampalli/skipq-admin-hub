@@ -26,7 +26,6 @@ export default function Vendors() {
   const setSync = useAdminStore((s) => s.setSync);
   const updateVendorStatus = useAdminStore((s) => s.updateVendorStatus);
   const updateVendorLogo = useAdminStore((s) => s.updateVendorLogo);
-  const approveVendorKyc = useAdminStore((s) => s.approveVendorKyc);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState<CreateVendorPayload>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -35,9 +34,6 @@ export default function Vendors() {
   const [suspendTarget, setSuspendTarget] = useState<Vendor | null>(null);
   const [suspendNote, setSuspendNote] = useState("");
   const [suspending, setSuspending] = useState(false);
-
-  const [kycTarget, setKycTarget] = useState<Vendor | null>(null);
-  const [approvingKyc, setApprovingKyc] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<Vendor | null>(null);
@@ -78,18 +74,6 @@ export default function Vendors() {
   const handleReinstate = async (v: Vendor) => {
     await api.updateVendorStatus(v.id, { status: "ACTIVE" });
     updateVendorStatus(v.id, "ACTIVE", null);
-  };
-
-  const handleApproveKyc = async () => {
-    if (!kycTarget) return;
-    setApprovingKyc(true);
-    try {
-      await api.approveKyc(kycTarget.id);
-      approveVendorKyc(kycTarget.id);
-      setKycTarget(null);
-    } finally {
-      setApprovingKyc(false);
-    }
   };
 
   const openAdd = () => { setForm(emptyForm); setError(""); setDialogOpen(true); };
@@ -148,7 +132,6 @@ export default function Vendors() {
               <TableHead>Status</TableHead>
               <TableHead>Prep Time</TableHead>
               <TableHead>Account</TableHead>
-              <TableHead>KYC</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -161,7 +144,6 @@ export default function Vendors() {
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell />
                 </TableRow>
               ))
@@ -188,23 +170,7 @@ export default function Vendors() {
                       <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>
                     )}
                   </TableCell>
-                  <TableCell>
-                    {v.kycApproved ? (
-                      <Badge variant="outline" className="text-xs text-green-600 border-green-300">Approved</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="text-xs text-amber-600">Pending</Badge>
-                    )}
-                  </TableCell>
                   <TableCell className="text-right space-x-2">
-                    {!v.kycApproved && v.accountStatus !== "SUSPENDED" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setKycTarget(v)}
-                      >
-                        Approve KYC
-                      </Button>
-                    )}
                     {v.accountStatus !== "SUSPENDED" && (
                       <Button
                         size="sm"
@@ -227,33 +193,6 @@ export default function Vendors() {
           </TableBody>
         </Table>
       </div>
-
-      {/* Approve KYC dialog */}
-      <Dialog open={!!kycTarget} onOpenChange={(open) => { if (!open) setKycTarget(null); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Approve KYC — {kycTarget?.name}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Confirm that you have verified the business name, PAN, bank account, and IFSC for this vendor.
-              Once approved, the vendor will be able to receive settlements.
-            </p>
-            {kycTarget?.businessName && (
-              <p className="text-sm"><span className="font-medium">Business:</span> {kycTarget.businessName}</p>
-            )}
-            {kycTarget?.gstRegistered && kycTarget?.gstin && (
-              <p className="text-sm"><span className="font-medium">GSTIN:</span> {kycTarget.gstin}</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setKycTarget(null)}>Cancel</Button>
-            <Button onClick={handleApproveKyc} disabled={approvingKyc}>
-              {approvingKyc ? "Approving..." : "Confirm Approve"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Suspend dialog */}
       <Dialog open={!!suspendTarget} onOpenChange={(open) => { if (!open) setSuspendTarget(null); }}>
