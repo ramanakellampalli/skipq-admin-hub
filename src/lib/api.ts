@@ -48,6 +48,10 @@ export interface Vendor {
   accountStatus: AccountStatus;
   suspensionNote: string | null;
   logoUrl: string | null;
+  kycApproved: boolean;
+  businessName: string | null;
+  gstRegistered: boolean;
+  gstin: string | null;
 }
 
 export interface UpdateVendorStatusPayload {
@@ -125,6 +129,12 @@ export interface CreateVendorPayload {
   campusId?: string | null;
   city?: string;
   ownerPhone: string;
+  businessName: string;
+  pan: string;
+  bankAccount: string;
+  ifsc: string;
+  gstRegistered: boolean;
+  gstin?: string;
 }
 
 export interface CreateCampusPayload {
@@ -179,6 +189,10 @@ export const api = {
 
   updateVendorStatus: async (id: string, payload: UpdateVendorStatusPayload): Promise<void> => {
     await client.put(`/api/v1/admin/vendors/${id}/status`, payload);
+  },
+
+  approveKyc: async (id: string): Promise<void> => {
+    await client.put(`/api/v1/admin/vendors/${id}/kyc-approve`);
   },
 
   listPayouts: async (status?: PayoutStatus): Promise<VendorPayout[]> => {
