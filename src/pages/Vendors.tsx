@@ -11,7 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ImageUp, Plus } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ImageUp, MoreHorizontal, Plus, CreditCard, ShieldOff, ShieldCheck } from "lucide-react";
 import VendorSubscriptionDialog from "@/components/VendorSubscriptionDialog";
 
 type SubFilter = "ALL" | SubscriptionStatus;
@@ -214,25 +215,44 @@ export default function Vendors() {
                     )}
                   </TableCell>
                   <TableCell>{subBadge(v.subscription.status, v.subscription.monthlyPrice)}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button size="sm" variant="ghost" className="text-xs" onClick={() => setSubDialogVendor(v)}>
-                      Subscription
-                    </Button>
-                    {v.accountStatus !== "SUSPENDED" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={uploading && uploadTarget?.id === v.id}
-                        onClick={() => handleLogoClick(v)}
-                      >
-                        <ImageUp className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {v.accountStatus === "SUSPENDED" ? (
-                      <Button size="sm" variant="outline" onClick={() => handleReinstate(v)}>Reinstate</Button>
-                    ) : (
-                      <Button size="sm" onClick={() => { setSuspendTarget(v); setSuspendNote(""); }}>Suspend</Button>
-                    )}
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setSubDialogVendor(v)}>
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Subscription
+                        </DropdownMenuItem>
+                        {v.accountStatus !== "SUSPENDED" && (
+                          <DropdownMenuItem
+                            disabled={uploading && uploadTarget?.id === v.id}
+                            onClick={() => handleLogoClick(v)}
+                          >
+                            <ImageUp className="h-4 w-4 mr-2" />
+                            Upload Logo
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuSeparator />
+                        {v.accountStatus === "SUSPENDED" ? (
+                          <DropdownMenuItem onClick={() => handleReinstate(v)}>
+                            <ShieldCheck className="h-4 w-4 mr-2" />
+                            Reinstate
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => { setSuspendTarget(v); setSuspendNote(""); }}
+                          >
+                            <ShieldOff className="h-4 w-4 mr-2" />
+                            Suspend
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))
