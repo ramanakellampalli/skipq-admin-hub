@@ -7,6 +7,7 @@ const WARN_MS =  2 * 60 * 1000;  // warn at 13 minutes (2 min before logout)
 const ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"] as const;
 
 export function useIdleTimeout() {
+  const isAuthenticated = useAuth((s) => s.isAuthenticated);
   const logout = useAuth((s) => s.logout);
   const [showWarning, setShowWarning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -33,6 +34,8 @@ export function useIdleTimeout() {
   }, [logout]);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     ACTIVITY_EVENTS.forEach((e) =>
       window.addEventListener(e, resetActivity, { passive: true })
     );
@@ -56,7 +59,7 @@ export function useIdleTimeout() {
       ACTIVITY_EVENTS.forEach((e) => window.removeEventListener(e, resetActivity));
       clearInterval(interval);
     };
-  }, [resetActivity, handleLogout]);
+  }, [isAuthenticated, resetActivity, handleLogout]);
 
   return { showWarning, secondsLeft, extend, logout: handleLogout };
 }
