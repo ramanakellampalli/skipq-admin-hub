@@ -95,6 +95,8 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
 
   const isPastDue = sub.status === "PAST_DUE";
   const isFree = sub.monthlyPrice === 0;
+  const currentMonthPrefix = new Date().toISOString().slice(0, 7); // "YYYY-MM"
+  const currentMonthPaid = payments?.some((p) => p.paidForMonth.startsWith(currentMonthPrefix)) ?? false;
   const paymentFormValid = payMonth && parseFloat(payAmount) > 0 && payDate;
 
   return (
@@ -166,7 +168,7 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
             </div>
 
             {/* Mark payment CTA */}
-            {!isFree && !showPaymentForm && (
+            {!isFree && !showPaymentForm && !currentMonthPaid && (
               <Button
                 size="sm"
                 className="w-full"
@@ -174,6 +176,11 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
               >
                 Mark Payment Received
               </Button>
+            )}
+            {!isFree && !showPaymentForm && currentMonthPaid && (
+              <p className="text-xs text-center text-green-600 font-medium py-1">
+                Payment received for this month
+              </p>
             )}
           </div>
 
