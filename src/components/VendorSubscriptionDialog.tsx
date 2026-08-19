@@ -167,20 +167,21 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
               </div>
             </div>
 
-            {/* Mark payment CTA */}
-            {!isFree && !showPaymentForm && !currentMonthPaid && (
-              <Button
-                size="sm"
-                className="w-full"
-                onClick={() => { setShowPaymentForm(true); setPayAmount(sub.monthlyPrice.toString()); }}
-              >
-                Mark Payment Received
-              </Button>
-            )}
-            {!isFree && !showPaymentForm && currentMonthPaid && (
-              <p className="text-xs text-center text-green-600 font-medium py-1">
-                Payment received for this month
-              </p>
+            {/* Mark payment CTA — wait for payments to load before rendering either state */}
+            {!isFree && !showPaymentForm && !loadingPayments && (
+              currentMonthPaid ? (
+                <p className="text-xs text-center text-green-600 font-medium py-1">
+                  Payment received for this month
+                </p>
+              ) : (
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => { setShowPaymentForm(true); setPayAmount(sub.monthlyPrice.toString()); }}
+                >
+                  Mark Payment Received
+                </Button>
+              )
             )}
           </div>
 
