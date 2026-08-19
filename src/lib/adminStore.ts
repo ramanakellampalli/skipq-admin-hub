@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { type AdminSyncData, type ServiceRequest, type AccountStatus } from "./api";
+import { type AdminSyncData, type ServiceRequest, type AccountStatus, type SubscriptionInfo } from "./api";
 
 interface AdminState extends Partial<AdminSyncData> {
   isSynced: boolean;
@@ -7,6 +7,7 @@ interface AdminState extends Partial<AdminSyncData> {
   updateServiceRequest: (sr: ServiceRequest) => void;
   updateVendorStatus: (id: string, status: AccountStatus, note: string | null) => void;
   updateVendorLogo: (id: string, logoUrl: string) => void;
+  updateVendorSubscription: (id: string, subscription: SubscriptionInfo) => void;
   reset: () => void;
 }
 
@@ -30,6 +31,10 @@ export const useAdminStore = create<AdminState>((set) => ({
   updateVendorLogo: (id, logoUrl) =>
     set((state) => ({
       vendors: state.vendors?.map((v) => (v.id === id ? { ...v, logoUrl } : v)),
+    })),
+  updateVendorSubscription: (id, subscription) =>
+    set((state) => ({
+      vendors: state.vendors?.map((v) => (v.id === id ? { ...v, subscription } : v)),
     })),
   reset: () =>
     set({ isSynced: false, stats: undefined, campuses: undefined, vendors: undefined, orders: undefined, serviceRequests: undefined }),
