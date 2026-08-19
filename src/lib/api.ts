@@ -166,6 +166,7 @@ export interface CreateVendorPayload {
   ifsc: string;
   gstRegistered: boolean;
   gstin?: string;
+  subscriptionMonthlyPrice?: number;
 }
 
 export interface CreateCampusPayload {

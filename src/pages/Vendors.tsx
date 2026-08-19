@@ -28,6 +28,7 @@ const emptyForm: CreateVendorPayload = {
   campusId: null, city: "", ownerPhone: "",
   businessName: "", pan: "", bankAccount: "", ifsc: "",
   gstRegistered: false, gstin: "",
+  subscriptionMonthlyPrice: 0,
 };
 
 export default function Vendors() {
@@ -360,6 +361,24 @@ export default function Vendors() {
             <div className="space-y-2">
               <Label>Default Prep Time (minutes)</Label>
               <Input type="number" min={1} value={form.defaultPrepTime} onChange={(e) => setForm((f) => ({ ...f, defaultPrepTime: Number(e.target.value) }))} />
+            </div>
+
+            <div className="border-t pt-4 space-y-4">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Subscription</p>
+              <div className="space-y-2">
+                <Label>Monthly Fee (₹)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={form.subscriptionMonthlyPrice ?? 0}
+                    onChange={(e) => setForm((f) => ({ ...f, subscriptionMonthlyPrice: Number(e.target.value) }))}
+                    className="w-36"
+                  />
+                  <span className="text-sm text-muted-foreground">0 = free plan</span>
+                </div>
+              </div>
             </div>
 
             <div className="border-t pt-4 space-y-4">
