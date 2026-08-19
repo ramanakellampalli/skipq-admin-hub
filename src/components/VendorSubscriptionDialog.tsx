@@ -23,7 +23,7 @@ interface Props {
 
 export default function VendorSubscriptionDialog({ vendor, open, onClose }: Props) {
   const updateVendorSubscription = useAdminStore((s) => s.updateVendorSubscription);
-  const sub = vendor.subscription;
+  const sub = useAdminStore((s) => s.vendors?.find((v) => v.id === vendor.id)?.subscription ?? vendor.subscription);
 
   const [payments, setPayments] = useState<SubscriptionPayment[] | null>(null);
   const [loadingPayments, setLoadingPayments] = useState(false);
