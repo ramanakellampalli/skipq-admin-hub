@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Pencil, CheckCircle2, X } from "lucide-react";
+import { Pencil, CheckCircle2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { api, type Vendor, type SubscriptionPayment, type SubscriptionInfo } from "@/lib/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAdminStore } from "@/lib/adminStore";
+
+const PAGE_SIZE = 6;
 
 function formatMonth(isoDate: string) {
   return new Date(isoDate + "T00:00:00").toLocaleDateString("en-IN", { month: "long", year: "numeric" });
@@ -40,8 +43,11 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
   const [newPrice, setNewPrice] = useState(sub.monthlyPrice.toString());
   const [savingPrice, setSavingPrice] = useState(false);
 
+  const [historyPage, setHistoryPage] = useState(0);
+
   useEffect(() => {
     if (!open) return;
+    setHistoryPage(0);
     setLoadingPayments(true);
     api.getSubscriptionPayments(vendor.id)
       .then(setPayments)
@@ -70,6 +76,7 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
       };
       updateVendorSubscription(vendor.id, updated);
       setPayments(await api.getSubscriptionPayments(vendor.id));
+      setHistoryPage(0);
       setShowPaymentForm(false);
       setPayMonth("");
       setPayRef("");
@@ -101,7 +108,7 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="flex flex-col max-h-[90vh] max-w-lg">
+      <DialogContent className="flex flex-col max-h-[90vh] max-w-2xl">
         <DialogHeader>
           <DialogTitle>Subscription — {vendor.name}</DialogTitle>
         </DialogHeader>
@@ -167,20 +174,21 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
               </div>
             </div>
 
-            {/* Mark payment CTA */}
-            {!isFree && !showPaymentForm && !currentMonthPaid && (
-              <Button
-                size="sm"
-                className="w-full"
-                onClick={() => { setShowPaymentForm(true); setPayAmount(sub.monthlyPrice.toString()); }}
-              >
-                Mark Payment Received
-              </Button>
-            )}
-            {!isFree && !showPaymentForm && currentMonthPaid && (
-              <p className="text-xs text-center text-green-600 font-medium py-1">
-                Payment received for this month
-              </p>
+            {/* Mark payment CTA — wait for payments to load before rendering either state */}
+            {!isFree && !showPaymentForm && !loadingPayments && (
+              currentMonthPaid ? (
+                <p className="text-xs text-center text-green-600 font-medium py-1">
+                  Payment received for this month
+                </p>
+              ) : (
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => { setShowPaymentForm(true); setPayAmount(sub.monthlyPrice.toString()); }}
+                >
+                  Mark Payment Received
+                </Button>
+              )
             )}
           </div>
 
@@ -221,26 +229,65 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
 
           {/* Payment history */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment History</p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Payment History</p>
+              {payments && payments.length > 0 && (
+                <p className="text-xs text-muted-foreground">{payments.length} payment{payments.length !== 1 ? "s" : ""}</p>
+              )}
+            </div>
             {loadingPayments ? (
               <p className="text-sm text-muted-foreground py-2">Loading…</p>
-            ) : payments && payments.length > 0 ? (
-              <div className="divide-y divide-border rounded-xl border overflow-hidden">
-                {payments.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between px-4 py-3">
-                    <div>
-                      <p className="text-sm font-medium">{formatMonth(p.paidForMonth)}</p>
+            ) : payments && payments.length > 0 ? (() => {
+              const totalPages = Math.ceil(payments.length / PAGE_SIZE);
+              const page = payments.slice(historyPage * PAGE_SIZE, (historyPage + 1) * PAGE_SIZE);
+              return (
+                <div className="rounded-xl border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Month</TableHead>
+                        <TableHead>Received On</TableHead>
+                        <TableHead>Reference</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {page.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="font-medium">{formatMonth(p.paidForMonth)}</TableCell>
+                          <TableCell className="text-muted-foreground">{formatDate(p.paidOn)}</TableCell>
+                          <TableCell className="text-muted-foreground font-mono text-xs">{p.paymentReference ?? "—"}</TableCell>
+                          <TableCell className="text-right font-semibold tabular-nums">
+                            ₹{p.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-between px-4 py-2 border-t bg-muted/30">
+                      <Button
+                        variant="ghost" size="sm"
+                        disabled={historyPage === 0}
+                        onClick={() => setHistoryPage((p) => p - 1)}
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+                      </Button>
                       <p className="text-xs text-muted-foreground">
-                        {formatDate(p.paidOn)}{p.paymentReference ? ` · ${p.paymentReference}` : ""}
+                        Page {historyPage + 1} of {totalPages}
                       </p>
+                      <Button
+                        variant="ghost" size="sm"
+                        disabled={historyPage === totalPages - 1}
+                        onClick={() => setHistoryPage((p) => p + 1)}
+                      >
+                        Next <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums">
-                      ₹{p.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
+                  )}
+                </div>
+              );
+            })() : (
               <p className="text-sm text-muted-foreground py-2">No payments recorded yet.</p>
             )}
           </div>
