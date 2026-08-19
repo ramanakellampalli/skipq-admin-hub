@@ -35,6 +35,24 @@ export interface Campus {
 }
 
 export type AccountStatus = "ACTIVE" | "SUSPENDED";
+export type SubscriptionStatus = "ACTIVE" | "PAST_DUE" | "SUSPENDED";
+
+export interface SubscriptionInfo {
+  status: SubscriptionStatus;
+  monthlyPrice: number;
+  paidThrough: string | null;   // ISO date, last day of last paid month
+  lastPaymentReference: string | null;
+}
+
+export interface SubscriptionPayment {
+  id: string;
+  amount: number;
+  paymentReference: string | null;
+  paidForMonth: string;   // ISO date, first day of covered month
+  paidOn: string;
+  adminNote: string | null;
+  createdAt: string;
+}
 
 export interface Vendor {
   id: string;
@@ -52,6 +70,20 @@ export interface Vendor {
   businessName: string | null;
   gstRegistered: boolean;
   gstin: string | null;
+  subscription: SubscriptionInfo;
+}
+
+export interface RecordSubscriptionPaymentPayload {
+  amount: number;
+  paidForMonth: string;   // first day of month e.g. "2026-09-01"
+  paymentReference?: string;
+  paidOn: string;
+  adminNote?: string;
+}
+
+export interface UpdateSubscriptionPayload {
+  monthlyPrice?: number;
+  status?: "ACTIVE" | "SUSPENDED";
 }
 
 export interface UpdateVendorStatusPayload {
@@ -206,6 +238,19 @@ export const api = {
     const params = adminNote ? `?adminNote=${encodeURIComponent(adminNote)}` : "";
     const { data } = await client.put(`/api/v1/admin/payouts/${id}/failed${params}`);
     return data;
+  },
+
+  getSubscriptionPayments: async (vendorId: string): Promise<SubscriptionPayment[]> => {
+    const { data } = await client.get(`/api/v1/admin/vendors/${vendorId}/subscription/payments`);
+    return data;
+  },
+
+  recordSubscriptionPayment: async (vendorId: string, payload: RecordSubscriptionPaymentPayload): Promise<void> => {
+    await client.post(`/api/v1/admin/vendors/${vendorId}/subscription/payment`, payload);
+  },
+
+  updateSubscription: async (vendorId: string, payload: UpdateSubscriptionPayload): Promise<void> => {
+    await client.put(`/api/v1/admin/vendors/${vendorId}/subscription`, payload);
   },
 
   uploadVendorLogo: async (vendorId: string, file: File): Promise<string> => {

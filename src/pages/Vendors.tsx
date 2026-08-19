@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { api, type CreateVendorPayload, type Vendor } from "@/lib/api";
+import { api, type CreateVendorPayload, type Vendor, type SubscriptionStatus } from "@/lib/api";
 import { useAdminStore } from "@/lib/adminStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,16 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { ImageUp, Plus } from "lucide-react";
+import VendorSubscriptionDialog from "@/components/VendorSubscriptionDialog";
+
+type SubFilter = "ALL" | SubscriptionStatus;
+
+function subBadge(status: SubscriptionStatus, monthlyPrice: number) {
+  if (monthlyPrice === 0) return <Badge variant="secondary" className="text-xs">Free</Badge>;
+  if (status === "PAST_DUE") return <Badge variant="destructive" className="text-xs">Past Due</Badge>;
+  if (status === "SUSPENDED") return <Badge className="text-xs bg-orange-500 hover:bg-orange-600">Sub Suspended</Badge>;
+  return <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>;
+}
 
 const emptyForm: CreateVendorPayload = {
   vendorName: "", email: "", ownerName: "", defaultPrepTime: 10,
@@ -34,6 +44,9 @@ export default function Vendors() {
   const [suspendTarget, setSuspendTarget] = useState<Vendor | null>(null);
   const [suspendNote, setSuspendNote] = useState("");
   const [suspending, setSuspending] = useState(false);
+
+  const [subFilter, setSubFilter] = useState<SubFilter>("ALL");
+  const [subDialogVendor, setSubDialogVendor] = useState<Vendor | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadTarget, setUploadTarget] = useState<Vendor | null>(null);
@@ -108,11 +121,33 @@ export default function Vendors() {
     form.bankAccount && form.ifsc.length === 11 &&
     (!form.gstRegistered || (form.gstin && form.gstin.length === 15));
 
+  const filteredVendors = vendors?.filter((v) => {
+    if (subFilter === "ALL") return true;
+    if (subFilter === "PAST_DUE") return v.subscription.status === "PAST_DUE" && v.subscription.monthlyPrice > 0;
+    if (subFilter === "SUSPENDED") return v.subscription.status === "SUSPENDED";
+    return v.subscription.status === "ACTIVE";
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Vendors</h1>
         <Button onClick={openAdd} size="sm"><Plus className="h-4 w-4 mr-1" /> Add Vendor</Button>
+      </div>
+
+      {/* Subscription filter chips */}
+      <div className="flex gap-2 flex-wrap">
+        {(["ALL", "ACTIVE", "PAST_DUE", "SUSPENDED"] as SubFilter[]).map((f) => (
+          <Button
+            key={f}
+            size="sm"
+            variant={subFilter === f ? "default" : "outline"}
+            onClick={() => setSubFilter(f)}
+            className="text-xs"
+          >
+            {f === "ALL" ? "All" : f === "PAST_DUE" ? "Past Due" : f.charAt(0) + f.slice(1).toLowerCase()}
+          </Button>
+        ))}
       </div>
 
       <input
@@ -132,6 +167,7 @@ export default function Vendors() {
               <TableHead>Status</TableHead>
               <TableHead>Prep Time</TableHead>
               <TableHead>Account</TableHead>
+              <TableHead>Subscription</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -144,11 +180,18 @@ export default function Vendors() {
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                   <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                   <TableCell />
                 </TableRow>
               ))
+            ) : filteredVendors?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
+                  No vendors match this filter.
+                </TableCell>
+              </TableRow>
             ) : (
-              vendors.map((v) => (
+              filteredVendors?.map((v) => (
                 <TableRow key={v.id}>
                   <TableCell className="font-medium">{v.name}</TableCell>
                   <TableCell>
@@ -170,7 +213,11 @@ export default function Vendors() {
                       <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>
                     )}
                   </TableCell>
+                  <TableCell>{subBadge(v.subscription.status, v.subscription.monthlyPrice)}</TableCell>
                   <TableCell className="text-right space-x-2">
+                    <Button size="sm" variant="ghost" className="text-xs" onClick={() => setSubDialogVendor(v)}>
+                      Subscription
+                    </Button>
                     {v.accountStatus !== "SUSPENDED" && (
                       <Button
                         size="sm"
@@ -222,6 +269,15 @@ export default function Vendors() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Subscription management dialog */}
+      {subDialogVendor && (
+        <VendorSubscriptionDialog
+          vendor={subDialogVendor}
+          open={!!subDialogVendor}
+          onClose={() => setSubDialogVendor(null)}
+        />
+      )}
 
       {/* Add Vendor dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
