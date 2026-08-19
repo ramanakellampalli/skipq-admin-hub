@@ -35,7 +35,7 @@ export interface Campus {
 }
 
 export type AccountStatus = "ACTIVE" | "SUSPENDED";
-export type SubscriptionStatus = "ACTIVE" | "PAST_DUE" | "SUSPENDED";
+export type SubscriptionStatus = "ACTIVE" | "PAST_DUE";
 
 export interface SubscriptionInfo {
   status: SubscriptionStatus;
@@ -83,7 +83,6 @@ export interface RecordSubscriptionPaymentPayload {
 
 export interface UpdateSubscriptionPayload {
   monthlyPrice?: number;
-  status?: "ACTIVE" | "SUSPENDED";
 }
 
 export interface UpdateVendorStatusPayload {

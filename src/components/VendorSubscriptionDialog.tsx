@@ -12,7 +12,6 @@ import { useAdminStore } from "@/lib/adminStore";
 function subscriptionBadge(status: string, monthlyPrice: number) {
   if (monthlyPrice === 0) return <Badge variant="secondary" className="text-xs">Free Plan</Badge>;
   if (status === "PAST_DUE") return <Badge variant="destructive" className="text-xs">Past Due</Badge>;
-  if (status === "SUSPENDED") return <Badge className="text-xs bg-orange-500 hover:bg-orange-600">Suspended</Badge>;
   return <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>;
 }
 
@@ -51,8 +50,6 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
   const [newPrice, setNewPrice] = useState(sub.monthlyPrice.toString());
   const [savingPrice, setSavingPrice] = useState(false);
 
-  // Suspend/reactivate
-  const [togglingStatus, setTogglingStatus] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -109,17 +106,6 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
     }
   };
 
-  const handleToggleStatus = async () => {
-    const nextStatus = sub.status === "SUSPENDED" ? "ACTIVE" : "SUSPENDED";
-    setTogglingStatus(true);
-    try {
-      await api.updateSubscription(vendor.id, { status: nextStatus });
-      updateVendorSubscription(vendor.id, { ...sub, status: nextStatus });
-    } finally {
-      setTogglingStatus(false);
-    }
-  };
-
   const canRecordPayment = sub.monthlyPrice > 0;
   const paymentFormValid = payMonth && parseFloat(payAmount) > 0 && payDate;
 
@@ -133,25 +119,13 @@ export default function VendorSubscriptionDialog({ vendor, open, onClose }: Prop
         <div className="overflow-y-auto flex-1 -mx-6 px-6 space-y-5">
 
           {/* Status + paid through */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              {subscriptionBadge(sub.status, sub.monthlyPrice)}
-              {sub.paidThrough && (
-                <p className="text-sm text-muted-foreground">Paid through {formatDate(sub.paidThrough)}</p>
-              )}
-              {!sub.paidThrough && sub.monthlyPrice > 0 && (
-                <p className="text-sm text-destructive">No payment recorded yet</p>
-              )}
-            </div>
-            {sub.monthlyPrice > 0 && (
-              <Button
-                size="sm"
-                variant={sub.status === "SUSPENDED" ? "outline" : "destructive"}
-                disabled={togglingStatus}
-                onClick={handleToggleStatus}
-              >
-                {togglingStatus ? "..." : sub.status === "SUSPENDED" ? "Re-activate" : "Suspend"}
-              </Button>
+          <div className="space-y-1">
+            {subscriptionBadge(sub.status, sub.monthlyPrice)}
+            {sub.paidThrough && (
+              <p className="text-sm text-muted-foreground">Paid through {formatDate(sub.paidThrough)}</p>
+            )}
+            {!sub.paidThrough && sub.monthlyPrice > 0 && (
+              <p className="text-sm text-destructive">No payment recorded yet</p>
             )}
           </div>
 

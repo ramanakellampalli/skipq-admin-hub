@@ -20,7 +20,6 @@ type SubFilter = "ALL" | SubscriptionStatus;
 function subBadge(status: SubscriptionStatus, monthlyPrice: number) {
   if (monthlyPrice === 0) return <Badge variant="secondary" className="text-xs">Free</Badge>;
   if (status === "PAST_DUE") return <Badge variant="destructive" className="text-xs">Past Due</Badge>;
-  if (status === "SUSPENDED") return <Badge className="text-xs bg-orange-500 hover:bg-orange-600">Sub Suspended</Badge>;
   return <Badge variant="outline" className="text-xs text-green-600 border-green-300">Active</Badge>;
 }
 
@@ -124,8 +123,7 @@ export default function Vendors() {
 
   const filteredVendors = vendors?.filter((v) => {
     if (subFilter === "ALL") return true;
-    if (subFilter === "PAST_DUE") return v.subscription.status === "PAST_DUE" && v.subscription.monthlyPrice > 0;
-    if (subFilter === "SUSPENDED") return v.subscription.status === "SUSPENDED";
+    if (subFilter === "PAST_DUE") return v.subscription.status === "PAST_DUE";
     return v.subscription.status === "ACTIVE";
   });
 
@@ -138,7 +136,7 @@ export default function Vendors() {
 
       {/* Subscription filter chips */}
       <div className="flex gap-2 flex-wrap">
-        {(["ALL", "ACTIVE", "PAST_DUE", "SUSPENDED"] as SubFilter[]).map((f) => (
+        {(["ALL", "ACTIVE", "PAST_DUE"] as SubFilter[]).map((f) => (
           <Button
             key={f}
             size="sm"
@@ -146,7 +144,7 @@ export default function Vendors() {
             onClick={() => setSubFilter(f)}
             className="text-xs"
           >
-            {f === "ALL" ? "All" : f === "PAST_DUE" ? "Past Due" : f.charAt(0) + f.slice(1).toLowerCase()}
+            {f === "ALL" ? "All" : f === "PAST_DUE" ? "Past Due" : "Active"}
           </Button>
         ))}
       </div>
