@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -66,20 +66,21 @@ function LoginModal({ onClose }: { onClose: () => void }) {
 
 export default function Home() {
   const [showLogin, setShowLogin] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div style={s.page}>
       <style>{`
+        .nav-burger { display: none; }
+        .nav-mobile-menu { display: none; }
         @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr !important; padding: 118px 24px 40px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; padding: 80px 24px 40px !important; }
           .hero-right { display: none !important; }
           .features-grid { grid-template-columns: 1fr 1fr !important; }
-          .nav { padding: 12px 20px !important; flex-wrap: wrap !important; }
-          .nav-links {
-            order: 3; width: 100%; justify-content: center;
-            gap: 24px !important; padding-top: 10px; margin-top: 10px;
-            border-top: 1px solid #f1f5f9;
-          }
+          .nav { padding: 14px 20px !important; }
+          .nav-links { display: none !important; }
+          .nav-burger { display: flex; }
+          .nav-mobile-menu { display: flex; }
           footer { padding: 20px 24px !important; }
         }
         @media (max-width: 480px) {
@@ -91,13 +92,31 @@ export default function Home() {
       {/* NAV */}
       <nav style={s.nav} className="nav">
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
-        <div style={s.navLinks} className="nav-links">
-          <Link to="/for-vendors" style={s.navLink}>Vendors</Link>
-          <Link to="/for-campus" style={s.navLink}>Campuses</Link>
-          <Link to="/about" style={s.navLink}>About</Link>
+        <div style={s.navRight}>
+          <div style={s.navLinks} className="nav-links">
+            <Link to="/for-vendors" style={s.navLink}>Vendors</Link>
+            <Link to="/for-campus" style={s.navLink}>Campuses</Link>
+            <Link to="/about" style={s.navLink}>About</Link>
+          </div>
+          <button style={s.adminBtn} onClick={() => setShowLogin(true)}>Admin Login</button>
+          <button
+            style={s.burgerBtn}
+            className="nav-burger"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(v => !v)}
+          >
+            {menuOpen ? <X size={20} color="#0f172a" /> : <Menu size={20} color="#0f172a" />}
+          </button>
         </div>
-        <button style={s.adminBtn} onClick={() => setShowLogin(true)}>Admin Login</button>
       </nav>
+      {menuOpen && (
+        <div style={s.mobileMenu} className="nav-mobile-menu">
+          <Link to="/for-vendors" style={s.mobileLink} onClick={() => setMenuOpen(false)}>Vendors</Link>
+          <Link to="/for-campus" style={s.mobileLink} onClick={() => setMenuOpen(false)}>Campuses</Link>
+          <Link to="/about" style={s.mobileLink} onClick={() => setMenuOpen(false)}>About</Link>
+        </div>
+      )}
 
       {/* HERO */}
       <section style={s.hero} className="hero-grid">
@@ -175,8 +194,23 @@ const s: Record<string, React.CSSProperties> = {
     backdropFilter: 'blur(12px)', borderBottom: '1px solid #f1f5f9',
   },
   logo: { fontWeight: 800, fontSize: 20, color: '#0f172a', letterSpacing: '-0.02em' },
+  navRight: { display: 'flex', alignItems: 'center', gap: 16 },
   navLinks: { display: 'flex', gap: 32, alignItems: 'center' },
   navLink: { fontSize: 14, color: '#6b7280', textDecoration: 'none', fontWeight: 500 },
+  burgerBtn: {
+    alignItems: 'center', justifyContent: 'center',
+    width: 38, height: 38, background: 'transparent',
+    border: '1px solid #e5e7eb', borderRadius: 8, cursor: 'pointer', padding: 0,
+  },
+  mobileMenu: {
+    position: 'fixed', top: 61, left: 0, right: 0, zIndex: 99,
+    flexDirection: 'column' as const, background: '#fff',
+    borderBottom: '1px solid #f1f5f9', boxShadow: '0 12px 24px rgba(0,0,0,0.06)',
+  },
+  mobileLink: {
+    padding: '14px 24px', fontSize: 15, fontWeight: 600,
+    color: '#0f172a', textDecoration: 'none', borderTop: '1px solid #f8fafc',
+  },
   adminBtn: {
     padding: '10px 20px', background: '#f9b17dff', color: '#000',
     border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
