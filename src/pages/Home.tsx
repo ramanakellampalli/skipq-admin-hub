@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useAdminStore } from "@/lib/adminStore";
@@ -87,13 +87,17 @@ export default function Home() {
       {/* NAV */}
       <nav style={s.nav} className="nav">
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
+        <div style={s.navLinks} className="nav-links">
+          <Link to="/for-vendors" style={s.navLink}>Vendors</Link>
+          <Link to="/for-campus" style={s.navLink}>Campuses</Link>
+          <Link to="/about" style={s.navLink}>About</Link>
+        </div>
         <button style={s.adminBtn} onClick={() => setShowLogin(true)}>Admin Login</button>
       </nav>
 
       {/* HERO */}
       <section style={s.hero} className="hero-grid">
         <div style={s.heroLeft}>
-          <div style={s.eyebrow}><span style={s.eyebrowIcon}>✦</span> Smart Ordering for Campus</div>
           <h1 style={s.h1}>
             Skip the line.<br />
             Order ahead.<br />
@@ -102,6 +106,14 @@ export default function Home() {
           <p style={s.heroSub}>
             SkipQ helps students order from campus vendors without waiting in queues.
           </p>
+          <div style={s.heroBtns}>
+            <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <button style={s.btnPrimary}>▶ Get the App</button>
+            </a>
+            <Link to="/for-vendors" style={{ textDecoration: 'none' }}>
+              <button style={s.btnGhost}>Join as a Vendor</button>
+            </Link>
+          </div>
           <div style={s.trustRow}>
             <span style={s.trustItem}><span style={s.trustIcon}>⏱</span> Save Time</span>
             <span style={s.trustSep}>|</span>
@@ -148,6 +160,8 @@ export default function Home() {
   );
 }
 
+const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.skipqcustomer";
+
 const s: Record<string, React.CSSProperties> = {
   page: { fontFamily: 'Inter, sans-serif', background: '#ffffff', color: '#0f172a', minHeight: '100vh' },
   nav: {
@@ -187,6 +201,7 @@ const s: Record<string, React.CSSProperties> = {
     border: '1.5px solid #d1d5db', borderRadius: 100, fontWeight: 600, fontSize: 15, cursor: 'pointer',
     display: 'flex', alignItems: 'center', gap: 8,
   },
+  heroBtns: { display: 'flex', gap: 12, alignItems: 'center', marginBottom: 28, flexWrap: 'wrap' as const },
   trustRow: { display: 'flex', gap: 12, alignItems: 'center' },
   trustItem: { fontSize: 13, color: '#6b7280', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 },
   trustIcon: { fontSize: 14 },

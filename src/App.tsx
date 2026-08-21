@@ -14,6 +14,9 @@ import Support from "@/pages/Support";
 import Payouts from "@/pages/Payouts";
 import NotFound from "@/pages/NotFound";
 import Home from "@/pages/Home";
+import ForVendors from "@/pages/ForVendors";
+import ForCampus from "@/pages/ForCampus";
+import About from "@/pages/About";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +35,9 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/for-vendors" element={<ForVendors />} />
+          <Route path="/for-campus" element={<ForCampus />} />
+          <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
