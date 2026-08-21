@@ -71,11 +71,15 @@ export default function Home() {
     <div style={s.page}>
       <style>{`
         @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr !important; padding: 80px 24px 40px !important; }
+          .hero-grid { grid-template-columns: 1fr !important; padding: 118px 24px 40px !important; }
           .hero-right { display: none !important; }
           .features-grid { grid-template-columns: 1fr 1fr !important; }
-          .nav { padding: 14px 24px !important; }
-          .nav-links { display: none !important; }
+          .nav { padding: 12px 20px !important; flex-wrap: wrap !important; }
+          .nav-links {
+            order: 3; width: 100%; justify-content: center;
+            gap: 24px !important; padding-top: 10px; margin-top: 10px;
+            border-top: 1px solid #f1f5f9;
+          }
           footer { padding: 20px 24px !important; }
         }
         @media (max-width: 480px) {
