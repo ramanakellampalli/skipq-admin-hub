@@ -92,12 +92,12 @@ export default function Home() {
       {/* NAV */}
       <nav style={s.nav} className="nav">
         <div style={s.logo}>Skip<span style={{ color: '#f97316' }}>Q</span></div>
+        <div style={s.navLinks} className="nav-links">
+          <Link to="/for-vendors" style={s.navLink}>Vendors</Link>
+          <Link to="/for-campus" style={s.navLink}>Campuses</Link>
+          <Link to="/about" style={s.navLink}>About</Link>
+        </div>
         <div style={s.navRight}>
-          <div style={s.navLinks} className="nav-links">
-            <Link to="/for-vendors" style={s.navLink}>Vendors</Link>
-            <Link to="/for-campus" style={s.navLink}>Campuses</Link>
-            <Link to="/about" style={s.navLink}>About</Link>
-          </div>
           <button style={s.adminBtn} onClick={() => setShowLogin(true)}>Admin Login</button>
           <button
             style={s.burgerBtn}
@@ -195,7 +195,10 @@ const s: Record<string, React.CSSProperties> = {
   },
   logo: { fontWeight: 800, fontSize: 20, color: '#0f172a', letterSpacing: '-0.02em' },
   navRight: { display: 'flex', alignItems: 'center', gap: 16 },
-  navLinks: { display: 'flex', gap: 32, alignItems: 'center' },
+  navLinks: {
+    display: 'flex', gap: 32, alignItems: 'center',
+    position: 'absolute' as const, left: '50%', transform: 'translateX(-50%)',
+  },
   navLink: { fontSize: 14, color: '#6b7280', textDecoration: 'none', fontWeight: 500 },
   burgerBtn: {
     alignItems: 'center', justifyContent: 'center',
